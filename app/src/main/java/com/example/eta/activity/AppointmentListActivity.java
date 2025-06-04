@@ -6,13 +6,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.eta.R;
 import com.example.eta.adapter.AppointmentAdapter;
 import com.example.eta.model.AppointmentRoom;
@@ -23,7 +21,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +49,7 @@ public class AppointmentListActivity extends AppCompatActivity {
         loadAppointmentRooms();
     }
 
+    // SharedPreferences 제거 - Intent에서만 데이터 받기
     private void getIntentData() {
         nickname = getIntent().getStringExtra("nickname");
         userId = getIntent().getStringExtra("userId");
@@ -111,7 +109,6 @@ public class AppointmentListActivity extends AppCompatActivity {
     private void showCreateChatRoomDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("새 채팅방 만들기");
-
         final EditText input = new EditText(this);
         input.setHint("채팅방 이름을 입력하세요");
         input.setTextColor(getResources().getColor(R.color.text_primary));
@@ -129,7 +126,6 @@ public class AppointmentListActivity extends AppCompatActivity {
         });
 
         builder.setNegativeButton("취소", (dialog, which) -> dialog.cancel());
-
         AlertDialog alertDialog = builder.create();
         alertDialog.getWindow().setBackgroundDrawableResource(R.color.surface_color);
         alertDialog.show();
@@ -137,7 +133,6 @@ public class AppointmentListActivity extends AppCompatActivity {
 
     private void createChatRoom(String chatRoomName) {
         String roomId = databaseReference.child("chatRooms").push().getKey();
-
         AppointmentRoom newRoom = new AppointmentRoom(
                 roomId,
                 chatRoomName,
