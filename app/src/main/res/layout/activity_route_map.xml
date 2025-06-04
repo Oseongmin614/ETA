@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_color">
+
+    <!-- T맵 컨테이너 -->
+    <FrameLayout
+        android:id="@+id/tmapcon"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/gray9"
+        android:layout_margin="8dp">
+
+        <!-- T맵이 여기에 추가됩니다 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="지도 로딩 중..."
+            android:textColor="@color/text_secondary"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <!-- 경로 정보 영역 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@color/surface_color"
+        android:fillViewport="true">
+
+        <TextView
+            android:id="@+id/text_route_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="경로를 계산 중입니다..."
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:padding="16dp"
+            android:lineSpacingExtra="4dp"
+            android:background="@color/surface_color" />
+
+    </ScrollView>
+
+</LinearLayout>

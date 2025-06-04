@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_color"
+    android:padding="16dp">
+
+    <!-- 상단 타이틀 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="길찾기"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <!-- 출발지 선택 섹션 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/surface_color"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="출발지"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/button_select_start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="출발지 선택"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:background="@color/button_primary"
+            android:padding="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/text_start_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="출발지를 선택해주세요"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:padding="12dp"
+            android:background="@color/gray9"
+            android:minHeight="48dp"
+            android:gravity="center_vertical" />
+
+    </LinearLayout>
+
+    <!-- 목적지 선택 섹션 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/surface_color"
+        android:padding="16dp"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="목적지"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/button_select_destination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="목적지 선택"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:background="@color/button_primary"
+            android:padding="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/text_destination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="목적지를 선택해주세요"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:padding="12dp"
+            android:background="@color/gray9"
+            android:minHeight="48dp"
+            android:gravity="center_vertical" />
+
+    </LinearLayout>
+
+    <!-- 길찾기 시작 버튼 -->
+    <Button
+        android:id="@+id/button_start_route"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" 길찾기 시작"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:background="@color/button_secondary"
+        android:padding="20dp"
+        android:enabled="false" />
+
+    <!-- 하단 여백 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

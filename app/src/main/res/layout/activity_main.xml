@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/background_color"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="약속도우미 어플"
+        android:textSize="24sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사용할 닉네임을 입력해주세요"
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/et_nickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="닉네임을 입력하세요"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_secondary"
+        android:background="@color/surface_color"
+        android:padding="16dp"
+        android:layout_marginBottom="24dp"
+        android:inputType="text"
+        android:maxLines="1"
+        android:imeOptions="actionDone" />
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="채팅 시작하기"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:background="@color/button_primary"
+        android:padding="16dp" />
+
+    <Button
+        android:id="@+id/btn_set_alarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="시간 설정 팝업으로 알람 추가"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btn_go_manage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="알람 설정 화면으로 가기"
+        android:layout_marginTop="24dp"
+        android:background="@color/button_primary"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/btn_alarm"
+        android:text="알람"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

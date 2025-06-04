@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_color">
+
+    <!-- 검색 상단 영역 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/surface_color"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/edit_text_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="위치를 검색하세요"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:background="@drawable/bg_edittext"
+            android:padding="12dp"
+            android:layout_marginRight="8dp"
+            android:textSize="16sp"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+
+        <ImageButton
+            android:id="@+id/button_search"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_menu_search"
+            android:background="@drawable/bg_circle_button"
+            android:scaleType="centerInside"
+            android:contentDescription="검색" />
+
+    </LinearLayout>
+
+    <!-- 지도 미리보기 영역 -->
+    <FrameLayout
+        android:id="@+id/mapContainer2"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@color/gray9"
+        android:layout_margin="8dp">
+
+        <!-- T맵이 여기에 추가됩니다 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="위치 미리보기"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <!-- 검색 결과 영역 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="@color/background_color">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="검색 결과"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:padding="16dp"
+            android:background="@color/surface_color" />
+
+        <ScrollView
+            android:id="@+id/scroll_results"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/background_color"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/layout_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <!-- 검색 결과가 여기에 동적으로 추가됩니다 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="검색어를 입력하고 🔍 버튼을 눌러주세요"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:padding="20dp"
+                    android:gravity="center"
+                    android:background="@color/surface_color" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <!-- 하단 확인 버튼 -->
+    <Button
+        android:id="@+id/button_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="선택 완료"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:background="@color/button_secondary"
+        android:padding="16dp"
+        android:layout_margin="16dp"
+        android:enabled="false" />
+
+</LinearLayout>

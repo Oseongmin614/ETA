@@ -1,0 +1,28 @@
+<resources>
+    <!-- 다크 테마 AlertDialog 스타일 -->
+    <style name="DarkAlertDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/surface_color</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorAccent">@color/button_primary</item>
+    </style>
+
+    <!-- 다크 테마 EditText 스타일 -->
+    <style name="DarkEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:background">@color/surface_color</item>
+    </style>
+
+    <style name="TimePickerTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#CCCCCC</item>
+    </style>
+
+    <!-- 다크 테마 Button 스타일 -->
+    <style name="DarkButton" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:background">@color/button_primary</item>
+    </style>
+</resources>

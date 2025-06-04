@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 기본 색상 -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#101010</color>
+
+    <!-- Gray 팔레트 -->
+    <color name="gray9">#212529</color>
+    <color name="gray6">#868E96</color>
+    <color name="gray5">#ADB5BD</color>
+    <color name="gray4">#CED4DA</color>
+    <color name="gray2">#E9ECEF</color>
+
+    <color name="text_on_primary">#FFFFFF</color>  <!-- 버튼 위의 텍스트는 흰색 -->
+
+    <!-- 앱 테마 색상 -->
+    <color name="primary_color">@color/gray9</color>
+    <color name="background_color">@color/black</color>
+    <color name="surface_color">@color/gray9</color>
+    <color name="text_primary">@color/white</color>
+    <color name="text_secondary">@color/gray5</color>
+    <color name="button_primary">@color/gray6</color>
+    <color name="button_secondary">@color/gray4</color>
+    <color name="divider_color">@color/gray6</color>
+</resources>
