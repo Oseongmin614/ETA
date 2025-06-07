@@ -4,12 +4,15 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.provider.Settings;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,41 +25,57 @@ import com.example.eta.receiver.AlarmReceiver;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class AlarmManageActivity extends AppCompatActivity {
+public class AlarmSetActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE_ADD_ALARM = 100;
-
+    private TimePicker timePicker;
+    private Button btnSaveAlarm;
     private RecyclerView recyclerView;
     private AlarmAdapter alarmAdapter;
     private ArrayList<AlarmItem> alarmList;
-    private Button btnSetAlarm;
-    private TextView textCurrentTime;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_alarm_manage);
+        setContentView(R.layout.activity_alarm_set);
 
         initViews();
+        setupRecyclerView();
         setupClickListeners();
-
-        alarmList = new ArrayList<>();
-        alarmAdapter = new AlarmAdapter(this, alarmList);
-        recyclerView.setAdapter(alarmAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void initViews() {
+        timePicker = findViewById(R.id.time_picker);
+        btnSaveAlarm = findViewById(R.id.btn_save_alarm);
         recyclerView = findViewById(R.id.recycler_alarm_list);
-        btnSetAlarm = findViewById(R.id.btn_set_alarm);
-        textCurrentTime = findViewById(R.id.text_current_time);
     }
 
+    private void setupRecyclerView() {
+        alarmList = new ArrayList<>();
+        alarmAdapter = new AlarmAdapter(this, alarmList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(alarmAdapter);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setupClickListeners() {
-        // 알람 설정 버튼 클릭 시 AlarmSetActivity 실행
-        btnSetAlarm.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AlarmSetActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_ADD_ALARM);
+        btnSaveAlarm.setOnClickListener(v -> {
+            int hour = timePicker.getHour();
+            int minute = timePicker.getMinute();
+
+            // Android 12 이상: 권한 필요
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                    Toast.makeText(this, "정확한 알람 권한을 허용해야 알람이 작동합니다.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+
+            addAlarm(hour, minute);
         });
     }
 
@@ -65,12 +84,12 @@ public class AlarmManageActivity extends AppCompatActivity {
         int requestCode = hour * 100 + minute;
         long timeInMillis = getMillisFromTime(hour, minute);
 
+        // 알람 객체 추가
         AlarmItem alarmItem = new AlarmItem(timeText, requestCode, true, timeInMillis);
         alarmList.add(alarmItem);
         alarmAdapter.notifyItemInserted(alarmList.size() - 1);
 
-        Log.d("AlarmManageActivity", "알람 추가됨: " + timeText + ", 총 개수: " + alarmList.size());
-
+        // 시스템 알람 설정
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
@@ -88,6 +107,7 @@ public class AlarmManageActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            Toast.makeText(this, "⏰ 알람이 설정되었습니다!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -98,22 +118,5 @@ public class AlarmManageActivity extends AppCompatActivity {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTimeInMillis();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_ADD_ALARM && resultCode == RESULT_OK && data != null) {
-            String timeText = data.getStringExtra("timeText");
-            long timeInMillis = data.getLongExtra("timeInMillis", 0);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(timeInMillis);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-
-            addAlarm(hour, minute);
-        }
     }
 }

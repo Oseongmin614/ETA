@@ -27,5 +27,4 @@
         android:textColor="@color/text_primary"
         android:background="@color/button_secondary"
         android:padding="12dp" />
-
 </LinearLayout>

@@ -1,5 +1,7 @@
 package com.example.eta.activity;
 
+import static android.graphics.Color.RED;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -59,7 +61,7 @@ public class MapFriendsActivity extends AppCompatActivity {
 
             String jsonStr2= jr.loadJSONFromAsset(this, "reute3.json");
             JsonObject response2 = JsonParser.parseString(jsonStr2).getAsJsonObject();
-            TMapPoint gps = new TMapPoint(37.50769852620036, 127.10253757684634);
+            TMapPoint gps = new TMapPoint(37.50821164293811, 127.1030613629431);
             drawOnLine(response2, gps, "a");
 
 
@@ -104,7 +106,7 @@ public class MapFriendsActivity extends AppCompatActivity {
         tMapView.addMarkerItem("markergps" + name, markergps);
         // 폴리라인 그리기
         TMapPolyLine poly = new TMapPolyLine();
-        poly.setLineColor(getResources().getColor(R.color.button_primary));
+        poly.setLineColor(RED);
         poly.setLineWidth(8);
 
         try {
@@ -155,14 +157,14 @@ public class MapFriendsActivity extends AppCompatActivity {
     }
 
     private void drawOnMap(JsonObject response) {
-        double friendPointLat = 37.4569076453145;
-        double friendPointLon = 127.14997232311465;
-        TMapPoint gps = new TMapPoint(37.4569076453145, 127.14997232311465);
+        double friendPointLat = 37.51163599542048;
+        double friendPointLon = 127.08545246258772;
+        TMapPoint gps = new TMapPoint(friendPointLat, friendPointLon);
         TMapMarkerItem markergps = new TMapMarkerItem();
         markergps.setTMapPoint(gps);
         tMapView.removeMarkerItem("markergps");
         tMapView.addMarkerItem("markergps", markergps);
-        tMapView.setCenterPoint(127.14997232311465, 37.4569076453145);
+        tMapView.setCenterPoint(friendPointLon, friendPointLat);
         // 폴리라인 그리기
         TMapPolyLine poly = new TMapPolyLine();
         poly.setLineColor(getResources().getColor(R.color.button_primary));

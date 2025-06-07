@@ -3,29 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_color"
     android:gravity="center"
-    android:padding="32dp">
+    android:padding="24dp"
+    android:background="@color/background_color">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="알람"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_marginBottom="16dp" />
-
-    <!-- 사용자 정보 표시 -->
-    <TextView
-        android:id="@+id/text_user_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="사용자님의 알람"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginBottom="16dp" />
-
+    <!-- 현재 알람 시간 -->
     <TextView
         android:id="@+id/text_alarm_time"
         android:layout_width="wrap_content"
@@ -34,38 +16,50 @@
         android:textSize="48sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
-        android:layout_marginBottom="64dp" />
+        android:layout_marginBottom="16dp" />
 
-    <LinearLayout
+    <!-- 유저 정보 -->
+    <TextView
+        android:id="@+id/text_user_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사용자님의 알람입니다"
+        android:textSize="18sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="40dp" />
+
+    <!-- 종료 버튼 -->
+    <Button
+        android:id="@+id/button_dismiss"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:text="알람 종료"
+        android:textSize="16sp"
+        android:background="@color/button_primary"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/button_snooze"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="재알람"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:background="@color/button_secondary"
-            android:padding="20dp"
-            android:layout_marginRight="8dp" />
+    <!-- 스누즈 버튼 -->
+    <Button
+        android:id="@+id/button_snooze"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="5분 후 다시 알림"
+        android:textSize="16sp"
+        android:background="@color/button_secondary"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/button_dismiss"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="중지"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:background="@color/button_primary"
-            android:padding="20dp"
-            android:layout_marginLeft="8dp" />
-
-    </LinearLayout>
+    <!-- 알람 관리 이동 버튼 -->
+    <Button
+        android:id="@+id/btn_go_manage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="알람 관리로 이동"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:background="@color/button_primary"
+        android:layout_marginTop="12dp"
+        android:padding="12dp" />
 
 </LinearLayout>

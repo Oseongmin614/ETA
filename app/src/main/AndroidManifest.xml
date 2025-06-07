@@ -2,10 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Firebase 사용을 위한 인터넷 권한 추가 -->
+    <!-- 권한 설정 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application
         android:allowBackup="true"
@@ -18,7 +19,13 @@
         android:theme="@style/Theme.ETA"
         tools:targetApi="31">
 
+        <!-- 알람 수신용 브로드캐스트 리시버 -->
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
 
+        <!-- 앱 시작 액티비티 -->
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
@@ -29,30 +36,25 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activity.MapFriendsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.AppointmentListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.ChatActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.MapActivity"
-            android:exported="false" />
+        <!-- 기타 액티비티들 -->
+        <activity android:name=".activity.MapFriendsActivity" android:exported="false" />
+        <activity android:name=".activity.AppointmentListActivity" android:exported="false" />
+        <activity android:name=".activity.ChatActivity" android:exported="false" />
+        <activity android:name=".activity.MapActivity" android:exported="false" />
+        <activity android:name=".activity.LocationSearchActivity" android:exported="false" />
+        <activity android:name=".activity.AlarmManageActivity" />
+        <activity android:name=".activity.AlarmSetActivity" />
 
+        <!-- 🚨 전체화면 알람 Activity 설정 강화 -->
         <activity
-            android:name=".activity.LocationSearchActivity"
-            android:exported="false" />
+            android:name=".activity.AlarmActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ETA"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:excludeFromRecents="true" />
 
-        <activity
-            android:name=".activity.MapRouteActivity"
-            android:exported="false" />
-        <receiver
-            android:name=".receiver.AlarmReceiver"
-            android:enabled="true"
-            android:exported="false" />
+        <activity android:name=".activity.MapRouteActivity" android:exported="false" />
     </application>
-
 </manifest>

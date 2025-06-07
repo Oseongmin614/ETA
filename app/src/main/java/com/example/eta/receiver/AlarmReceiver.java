@@ -3,15 +3,13 @@ package com.example.eta.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.example.eta.activity.AlarmActivity;
+import android.widget.Toast;
 
 public class AlarmReceiver extends BroadcastReceiver {
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        // 알람 시간 도달 시 AlarmActivity 실행
-        Intent alarmIntent = new Intent(context, AlarmActivity.class);
-        alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(alarmIntent);
+        // 알람 시간이 되었을 때 간단한 토스트 알림을 띄움
+        Toast.makeText(context, "⏰ 알람 시간입니다!", Toast.LENGTH_LONG).show();
     }
 }
