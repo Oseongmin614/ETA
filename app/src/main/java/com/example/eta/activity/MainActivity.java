@@ -1,171 +1,93 @@
 package com.example.eta.activity;
 
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.eta.R;
-import com.example.eta.model.UserData;
-import com.example.eta.util.DatabaseConstants;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText etNickname;
-    private Button btnStart;
-    private DatabaseReference databaseRef;
+    private EditText etEmail, etPassword;
+    private Button btnRegister, btnLogin;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Firebase 초기화
-        databaseRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        etEmail = findViewById(R.id.et_email);
+        etPassword = findViewById(R.id.et_password);
+        btnRegister = findViewById(R.id.btn_register);
+        btnLogin = findViewById(R.id.btn_login);
 
-        initViews();
-        setupClickListeners();
+        btnRegister.setOnClickListener(v -> registerUser());
+        btnLogin.setOnClickListener(v -> loginUser());
     }
 
-    private void initViews() {
-        etNickname = findViewById(R.id.et_nickname);
-        btnStart = findViewById(R.id.btn_start);
-
-        // 다크 테마 색상 적용
-        etNickname.setTextColor(getResources().getColor(R.color.text_primary));
-        etNickname.setHintTextColor(getResources().getColor(R.color.text_secondary));
-        etNickname.setBackgroundColor(getResources().getColor(R.color.surface_color));
-
-        btnStart.setTextColor(getResources().getColor(R.color.text_primary));
-        btnStart.setBackgroundColor(getResources().getColor(R.color.button_primary));
+    // 회원가입 화면으로 이동
+    private void registerUser() {
+        Intent intent = new Intent(MainActivity.this, SignupActivity.class);
+        startActivity(intent);
     }
 
-    private void setupClickListeners() {
-        btnStart.setOnClickListener(v -> {
-            String nickname = etNickname.getText().toString().trim();
+    // 로그인
+    private void loginUser() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
 
-            if (nickname.isEmpty()) {
-                showToast("닉네임을 입력해주세요");
-                return;
-            }
-
-            if (!isValidNickname(nickname)) {
-                showToast("닉네임은 2~10자 영문/숫자/한글로 입력해주세요");
-                return;
-            }
-
-            checkNicknameAvailability(nickname);
-        });
-    }
-
-    // 닉네임 유효성 검사
-    private boolean isValidNickname(String nickname) {
-        return nickname.matches("^[a-zA-Z0-9가-힣]{2,10}$");
-    }
-
-    // 닉네임 중복 확인 (인터넷 연결 확인 포함)
-    private void checkNicknameAvailability(String nickname) {
-        // 인터넷 연결 확인 코드 추가
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork == null || !activeNetwork.isConnected()) {
-            showToast("인터넷 연결을 확인해주세요");
+        if (email.isEmpty() || password.isEmpty()) {
+            showToast("이메일과 비밀번호를 입력하세요.");
             return;
         }
 
-        // Firebase에서 닉네임 고유성 확인
-        databaseRef.child(DatabaseConstants.NODE_USERNAMES)
-                .child(nickname)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            // 기존 사용자 로그인 - 같은 닉네임 = 같은 유저
-                            String existingUserId = snapshot.getValue(String.class);
-                            loginExistingUser(nickname, existingUserId);
-                        } else {
-                            // 새 사용자 생성
-                            createNewUser(nickname);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        showToast("서버 연결 실패: " + error.getMessage());
-                    }
-                });
-    }
-
-    // 기존 사용자 로그인 처리 (다른 기기에서도 같은 닉네임 = 같은 유저)
-    private void loginExistingUser(String nickname, String userId) {
-        // 마지막 활동 시간 업데이트
-        databaseRef.child(DatabaseConstants.NODE_USERS)
-                .child(userId)
-                .child(DatabaseConstants.FIELD_LAST_ACTIVE_AT)
-                .setValue(System.currentTimeMillis())
-                .addOnCompleteListener(task -> {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        showToast(nickname + "님 환영합니다!");
-                        moveToAppointmentList(nickname, userId);
+                        showToast("로그인 성공!");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        fetchUserDataAndMove(user);
                     } else {
-                        showToast("로그인 실패");
+                        showToast("로그인 실패: " + task.getException().getMessage());
                     }
                 });
     }
 
-    // 새 사용자 생성
-    private void createNewUser(String nickname) {
-        String newUserId = databaseRef.push().getKey();
-
-        if (newUserId == null) {
-            showToast("사용자 생성 오류");
+    // 사용자 정보 DB에서 읽어서 넘기기
+    private void fetchUserDataAndMove(FirebaseUser user) {
+        if (user == null) {
+            showToast("유저 정보가 없습니다.");
             return;
         }
-
-        // 닉네임 매핑 저장 (닉네임 -> 사용자ID)
-        databaseRef.child(DatabaseConstants.NODE_USERNAMES)
-                .child(nickname)
-                .setValue(newUserId)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        saveUserData(newUserId, nickname);
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(user.getUid())
+                .get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        String nickname = dataSnapshot.child("nickname").getValue(String.class);
+                        String profileImageUrl = dataSnapshot.child("profileImageUrl").getValue(String.class);
+                        moveToAppointmentList(user, nickname, profileImageUrl);
                     } else {
-                        showToast("닉네임 등록 실패");
+                        showToast("사용자 정보가 없습니다. 회원가입을 다시 해주세요.");
                     }
-                });
+                })
+                .addOnFailureListener(e -> showToast("사용자 정보 불러오기 실패: " + e.getMessage()));
     }
 
-    // 사용자 데이터 저장
-    private void saveUserData(String userId, String nickname) {
-        UserData newUser = new UserData(nickname, System.currentTimeMillis());
-
-        databaseRef.child(DatabaseConstants.NODE_USERS)
-                .child(userId)
-                .setValue(newUser)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        showToast("새 사용자로 등록되었습니다!");
-                        moveToAppointmentList(nickname, userId);
-                    } else {
-                        showToast("사용자 생성 실패");
-                    }
-                });
-    }
-
-    // 채팅방 목록으로 이동
-    private void moveToAppointmentList(String nickname, String userId) {
+    private void moveToAppointmentList(FirebaseUser user, String nickname, String profileImageUrl) {
         Intent intent = new Intent(this, AppointmentListActivity.class);
+        intent.putExtra("userId", user.getUid());
+        intent.putExtra("email", user.getEmail());
         intent.putExtra("nickname", nickname);
-        intent.putExtra("userId", userId);
+        intent.putExtra("profileImageUrl", profileImageUrl);
         startActivity(intent);
         finish();
     }

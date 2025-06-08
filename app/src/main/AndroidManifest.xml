@@ -24,7 +24,7 @@
 
         <activity android:name=".activity.AppointmentListActivity" />
         <activity android:name=".activity.ChatActivity" />
-
+        <activity android:name=".activity.SignupActivity"/>
     </application>
 
 </manifest>

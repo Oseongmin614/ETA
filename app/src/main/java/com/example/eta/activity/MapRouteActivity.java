@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.eta.R;
+import com.example.eta.util.Keyholder;
 import com.example.eta.util.LocationHelper; // 수정된 LocationHelper 사용
 import com.example.eta.util.LocationResultListener;
 import com.google.gson.JsonArray;
