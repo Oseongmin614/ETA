@@ -1,9 +1,9 @@
 package com.example.eta.activity;
 
-import static android.graphics.Color.RED;
-
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,18 +12,19 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.eta.R;
-import com.example.eta.model.JsonReaderR;
 import com.example.eta.util.Keyholder;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,56 +35,175 @@ import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapFriendsActivity extends AppCompatActivity {
+    private static final String TAG = "MapFriendsActivity";
+
+    // UI Components
     private FrameLayout mapContainer;
     private TextView textRouteInfo;
     private TMapView tMapView;
-    private static final String TAG = "RouteMapFriendsActivity";
+
+    // Data
+    private String userId;
+    private String chatRoomId;
+
+    // Firebase
     private DatabaseReference mDatabase;
+    private DatabaseReference chatRoomRef;
+
+    // Map & Color Management
+    private final List<Integer> friendColors = new ArrayList<>();
+    private final Map<String, Integer> userColorMap = new HashMap<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_route_map_friends);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            mDatabase = FirebaseDatabase.getInstance().getReference();
-            JsonReaderR jr = new JsonReaderR();
-            String jsonStr= jr.loadJSONFromAsset(this, "route2.json");
-            JsonObject response = JsonParser.parseString(jsonStr).getAsJsonObject();
-            initViews();
-            initTMap();
 
-            String jsonStr2= jr.loadJSONFromAsset(this, "reute3.json");
-            JsonObject response2 = JsonParser.parseString(jsonStr2).getAsJsonObject();
-            TMapPoint gps = new TMapPoint(37.50821164293811, 127.1030613629431);
-            drawOnLine(response2, gps, "a");
+        initViews();
+        initTMap();
+        initFriendColors();
+        getIntentData();
+        initFirebase();
 
-
-            drawOnMap(response);
-            return insets;
-        });
-
-
+        loadAllRoutesAndInitialGps();
+        attachGpsListener();
     }
+
     private void initTMap() {
         tMapView = new TMapView(this);
         tMapView.setSKTMapApiKey(Keyholder.getAppKey());
         mapContainer.addView(tMapView);
+        tMapView.setZoomLevel(15);
     }
-    private void initViews() {
-        mapContainer = findViewById(R.id.tmapcon);
-        textRouteInfo = findViewById(R.id.text_route_info);
 
-        // 다크 테마 적용
-        textRouteInfo.setTextColor(getResources().getColor(R.color.text_primary));
-        textRouteInfo.setBackgroundColor(getResources().getColor(R.color.surface_color));
+    private void initViews () {
+            mapContainer = findViewById(R.id.tmapcon);
+            textRouteInfo = findViewById(R.id.text_route_info);
+            textRouteInfo.setTextColor(getResources().getColor(R.color.text_primary));
+            textRouteInfo.setBackgroundColor(getResources().getColor(R.color.surface_color));
     }
+
+    private void initFriendColors() {
+        friendColors.add(Color.RED);
+        friendColors.add(Color.YELLOW);
+        friendColors.add(Color.GREEN);
+        friendColors.add(Color.BLUE);
+    }
+    private void getIntentData() {
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("userId");
+        chatRoomId = intent.getStringExtra("roomId");
+
+        if (TextUtils.isEmpty(userId) || TextUtils.isEmpty(chatRoomId)) {
+            Toast.makeText(this, "사용자 또는 채팅방 정보가 없습니다.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+    private void initFirebase() {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        chatRoomRef = mDatabase.child("chatRooms").child(chatRoomId);
+    }
+    private TMapPoint parseGpsString(String gpsStr) {
+        try {
+            String[] coords = gpsStr.split(",");
+            double lat = Double.parseDouble(coords[0]);
+            double lon = Double.parseDouble(coords[1]);
+            return new TMapPoint(lat, lon);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to parse GPS string: " + gpsStr, e);
+            return null;
+        }
+    }
+
+    private void attachGpsListener() {
+        chatRoomRef.child("gps").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                // loadAllRoutesAndInitialGps에서 초기 위치는 이미 처리했으므로, 여기서는 중복 작업을 피할 수 있습니다.
+                // 또는 이 곳에서 모든 로직을 처리하고 loadAllRoutesAndInitialGps를 간소화할 수도 있습니다.
+                // 현재 구조에서는 초기 로딩 후의 변경사항만 처리합니다.
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                String changedUserId = snapshot.getKey();
+                String gpsStr = snapshot.getValue(String.class);
+                if (changedUserId == null || gpsStr == null) return;
+
+                TMapPoint newGpsPoint = parseGpsString(gpsStr);
+                updateMarker(changedUserId, newGpsPoint);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                String removedUserId = snapshot.getKey();
+                if (removedUserId == null) return;
+                tMapView.removeMarkerItem("markergps" + removedUserId);
+                tMapView.removeTMapPolyLine("route" + removedUserId);
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "GPS listener was cancelled", error.toException());
+            }
+        });
+    }
+    private void loadAllRoutesAndInitialGps() {
+        chatRoomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) return;
+
+                DataSnapshot coordinatesSnapshot = snapshot.child("Coordinates");
+                DataSnapshot gpsSnapshot = snapshot.child("gps");
+
+                // 다른 사용자들의 ID 리스트를 만들어 색상을 할당합니다.
+                List<String> otherUserIds = new ArrayList<>();
+                for (DataSnapshot userGpsSnapshot : gpsSnapshot.getChildren()) {
+                    if (!userGpsSnapshot.getKey().equals(userId)) {
+                        otherUserIds.add(userGpsSnapshot.getKey());
+                    }
+                }
+                for (int i = 0; i < otherUserIds.size(); i++) {
+                    userColorMap.put(otherUserIds.get(i), friendColors.get(i % friendColors.size()));
+                }
+
+                // 각 사용자의 경로와 GPS를 지도에 그립니다.
+                for (DataSnapshot userCoordSnapshot : coordinatesSnapshot.getChildren()) {
+                    String currentUserId = userCoordSnapshot.getKey();
+                    String routeJsonStr = userCoordSnapshot.getValue(String.class);
+                    String gpsStr = gpsSnapshot.child(currentUserId).getValue(String.class);
+
+                    if (routeJsonStr == null || gpsStr == null) continue;
+
+                    JsonObject routeJson = JsonParser.parseString(routeJsonStr).getAsJsonObject();
+                    TMapPoint initialGpsPoint = parseGpsString(gpsStr);
+
+                    if (currentUserId.equals(userId)) {
+                        drawOnMap(routeJson); // 내 경로 그리기
+                    } else {
+                        Integer color = userColorMap.get(currentUserId);
+                        drawOnLine(routeJson, initialGpsPoint, currentUserId, color != null ? color : Color.GRAY); // 다른 사용자 경로 그리기
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed to load initial chat room data.", error.toException());
+            }
+        });
+    }
+
 
     private static class Segment {
         String mode, start, end, route;
@@ -99,77 +219,50 @@ public class MapFriendsActivity extends AppCompatActivity {
         }
     }
 
-    private void drawOnLine(JsonObject response, TMapPoint gps, String name) {
+    private void drawOnLine(JsonObject coordinatesJson, TMapPoint gps, String otherUserId, int color) {
         TMapMarkerItem markergps = new TMapMarkerItem();
         markergps.setTMapPoint(gps);
-        tMapView.removeMarkerItem("markergps" + name);
-        tMapView.addMarkerItem("markergps" + name, markergps);
-        // 폴리라인 그리기
+        markergps.setIcon(createMarkerIcon());
+        tMapView.addMarkerItem("markergps" + otherUserId, markergps);
+
         TMapPolyLine poly = new TMapPolyLine();
-        poly.setLineColor(RED);
+        poly.setLineColor(color); // 파라미터로 받은 색상 적용
         poly.setLineWidth(8);
 
+        // ... 기존 폴리라인 파싱 및 추가 로직 (동일)
         try {
-            JsonObject itinerary = response.getAsJsonObject("metaData")
+            JsonObject itinerary = coordinatesJson.getAsJsonObject("metaData")
                     .getAsJsonObject("plan")
                     .getAsJsonArray("itineraries")
                     .get(0)
                     .getAsJsonObject();
 
-            int totalTime = itinerary.get("totalTime").getAsInt();
             JsonArray legs = itinerary.getAsJsonArray("legs");
 
             for (JsonElement legElement : legs) {
                 JsonObject leg = legElement.getAsJsonObject();
-                String lineString = null;
-
                 if (leg.has("passShape")) {
-                    lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
-                } else if (leg.has("steps")) {
-                    JsonArray steps = leg.getAsJsonArray("steps");
-                    for (JsonElement stepElement : steps) {
-                        JsonObject step = stepElement.getAsJsonObject();
-                        if (step.has("linestring")) {
-                            lineString = step.get("linestring").getAsString();
-                            break;
-                        }
-                    }
-                }
-
-                if (lineString != null) {
+                    String lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
                     for (String coordinate : lineString.split(" ")) {
                         String[] coords = coordinate.split(",");
                         if (coords.length >= 2) {
-                            double lon = Double.parseDouble(coords[0].trim());
-                            double lat = Double.parseDouble(coords[1].trim());
-                            poly.addLinePoint(new TMapPoint(lat, lon));
+                            poly.addLinePoint(new TMapPoint(Double.parseDouble(coords[1].trim()), Double.parseDouble(coords[0].trim())));
                         }
                     }
                 }
             }
-
-            tMapView.addTMapPolyLine("reute"+name, poly);
-
+            tMapView.addTMapPolyLine("route" + otherUserId, poly);
         } catch (Exception e) {
-            Log.e(TAG, "라인 추가 실패", e);
-            Toast.makeText(this, "라인 표시에 실패했습니다", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "라인 추가 실패 (User: " + otherUserId + ")", e);
         }
     }
 
     private void drawOnMap(JsonObject response) {
-        double friendPointLat = 37.51163599542048;
-        double friendPointLon = 127.08545246258772;
-        TMapPoint gps = new TMapPoint(friendPointLat, friendPointLon);
-        TMapMarkerItem markergps = new TMapMarkerItem();
-        markergps.setTMapPoint(gps);
-        tMapView.removeMarkerItem("markergps");
-        tMapView.addMarkerItem("markergps", markergps);
-        tMapView.setCenterPoint(friendPointLon, friendPointLat);
-        // 폴리라인 그리기
         TMapPolyLine poly = new TMapPolyLine();
         poly.setLineColor(getResources().getColor(R.color.button_primary));
         poly.setLineWidth(8);
 
+        // ... 기존 폴리라인 파싱 및 추가, 정보 텍스트 표시 로직 (동일)
         try {
             JsonObject itinerary = response.getAsJsonObject("metaData")
                     .getAsJsonObject("plan")
@@ -179,46 +272,35 @@ public class MapFriendsActivity extends AppCompatActivity {
 
             int totalTime = itinerary.get("totalTime").getAsInt();
             JsonArray legs = itinerary.getAsJsonArray("legs");
+            TMapPoint lastPoint = null;
 
             for (JsonElement legElement : legs) {
                 JsonObject leg = legElement.getAsJsonObject();
-                String lineString = null;
-
                 if (leg.has("passShape")) {
-                    lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
-                } else if (leg.has("steps")) {
-                    JsonArray steps = leg.getAsJsonArray("steps");
-                    for (JsonElement stepElement : steps) {
-                        JsonObject step = stepElement.getAsJsonObject();
-                        if (step.has("linestring")) {
-                            lineString = step.get("linestring").getAsString();
-                            break;
-                        }
-                    }
-                }
-
-                if (lineString != null) {
+                    String lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
                     for (String coordinate : lineString.split(" ")) {
                         String[] coords = coordinate.split(",");
                         if (coords.length >= 2) {
                             double lon = Double.parseDouble(coords[0].trim());
                             double lat = Double.parseDouble(coords[1].trim());
-                            poly.addLinePoint(new TMapPoint(lat, lon));
+                            TMapPoint point = new TMapPoint(lat, lon);
+                            poly.addLinePoint(point);
+                            lastPoint = point;
                         }
                     }
                 }
             }
+            tMapView.addTMapPolyLine("route" + this.userId, poly);
 
-            tMapView.addTMapPolyLine("route", poly);
+            // 내 마커 추가 및 지도 중심 이동
+            if (lastPoint != null) {
+                updateMarker(this.userId, lastPoint); // 내 마커 위치 업데이트
+                tMapView.setCenterPoint(lastPoint.getLongitude(), lastPoint.getLatitude());
+            }
 
-            // 시간 포맷팅
-            String timeFormatted = String.format("%02d:%02d:%02d",
-                    totalTime / 3600, (totalTime % 3600) / 60, totalTime % 60);
-
-            // 경로 안내 텍스트 생성
+            String timeFormatted = String.format("%02d:%02d:%02d", totalTime / 3600, (totalTime % 3600) / 60, totalTime % 60);
             List<String> instructions = generateTextInstructions(response);
             instructions.add(0, "총 소요 시간: " + timeFormatted);
-
             textRouteInfo.setText(TextUtils.join("\n", instructions));
 
         } catch (Exception e) {
@@ -227,8 +309,21 @@ public class MapFriendsActivity extends AppCompatActivity {
         }
     }
 
-    private TMapMarkerItem createMarker(TMapPoint point, String title) {
-        TMapMarkerItem marker = new TMapMarkerItem();
+    private void updateMarker(String markerUserId, TMapPoint point) {
+        if (point == null) return;
+        TMapMarkerItem marker = tMapView.getMarkerItemFromID("markergps" + markerUserId);
+        if (marker != null) {
+            marker.setTMapPoint(point);
+        } else {
+            // 마커가 없는 경우 새로 생성 (리스너 부착 시점 이슈 방지)
+            TMapMarkerItem newMarker = new TMapMarkerItem();
+            newMarker.setTMapPoint(point);
+            newMarker.setIcon(createMarkerIcon()); // 아이콘 설정
+            tMapView.addMarkerItem("markergps" + markerUserId, newMarker);
+        }
+    }
+
+    private Bitmap createMarkerIcon() {
         Drawable drawable = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mylocation);
         if (drawable != null) {
             int width = drawable.getIntrinsicWidth();
@@ -237,11 +332,9 @@ public class MapFriendsActivity extends AppCompatActivity {
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             drawable.draw(canvas);
-            marker.setIcon(bitmap);
+            return bitmap;
         }
-        marker.setTMapPoint(point);
-        marker.setName(title);
-        return marker;
+        return null;
     }
     private List<String> generateTextInstructions(JsonObject response) {
         try {

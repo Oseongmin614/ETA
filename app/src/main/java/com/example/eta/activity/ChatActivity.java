@@ -199,10 +199,12 @@ public class ChatActivity extends AppCompatActivity {
             hideQuickMenu();
         });
 
-        // 친구위치 버튼 (아이콘만)
+        // 친구위치 버튼 (MapFriendsActivity 실행)
         LinearLayout menuMapFriends = findViewById(R.id.menu_mapFriends);
         menuMapFriends.setOnClickListener(v -> {
             Intent intent = new Intent(this, MapFriendsActivity.class);
+            intent.putExtra("userId", currentUserId);
+            intent.putExtra("roomId", chatRoomId);
             startActivity(intent);
             hideQuickMenu();
         });
