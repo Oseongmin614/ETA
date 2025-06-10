@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Build;
@@ -71,7 +72,13 @@ public class LocationService extends Service implements LocationResultListener {
         }
 
         // 포그라운드 서비스 시작
-        startForeground(NOTIFICATION_ID, createNotification());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14+
+            // 포그라운드 서비스 위치 타입 지정
+            startForeground(NOTIFICATION_ID, createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else {
+            startForeground(NOTIFICATION_ID, createNotification());
+        }
 
         // 위치 추적 시작
         if (locationHelper != null && !locationHelper.isTracking()) {

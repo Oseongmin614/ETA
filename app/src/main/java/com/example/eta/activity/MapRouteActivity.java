@@ -1,5 +1,6 @@
 package com.example.eta.activity;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.eta.R;
@@ -51,7 +54,7 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
 
     private static final String TAG = "RouteMapActivity";
     private static final String ROUTE_API_BASE = "https://apis.openapi.sk.com";
-    private static final int APP_LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
 
     // UI 컴포넌트
     private FrameLayout mapContainer;
@@ -110,6 +113,7 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
         }
         // 위치 업데이트 시작은 onResume으로 이동 (protoMap 스타일)
         startAndBindLocationService();
+
     }
 
     private void initViews() {
@@ -119,24 +123,8 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
         textRouteInfo.setBackgroundColor(getResources().getColor(R.color.surface_color));
     }
 
-    // 위치 표시 관련 초기화 (protoMap 스타일)
-    private void initLocationHelperAndMarkerIcon() {
-        // 현위치 마커 아이콘 설정 (protoMap 스타일)
-        Drawable drawable = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mylocation); // ETA 기존 아이콘 사용
-        if (drawable != null) {
-            int width = drawable.getIntrinsicWidth();
-            int height = drawable.getIntrinsicHeight();
-            drawable.setBounds(0, 0, width, height);
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.draw(canvas);
-            markergps.setIcon(bitmap);
-            markergps.setName("현위치");
-            markergps.setPosition(0.5f, 1.0f); // 아이콘의 중심을 하단 중앙으로 (protoMap 스타일)
-        } else {
-            Log.e(TAG, "현위치 마커 아이콘 로드 실패");
-        }
-    }
+
+
 
     // 경로 안내 관련 초기화 (ETA 스타일)
     private void initTMapAndRetrofit() {
@@ -516,17 +504,6 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
         // tMapView.setCenterPoint(longitude, latitude, true);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == APP_LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "위치 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show();
-                // 권한 허용 후 서비스 재시작/재연결 로직
-                startAndBindLocationService();
-            } else {
-                Toast.makeText(this, "위치 권한이 거부되었습니다. 현위치 기능이 제한됩니다.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
+
+
 }
