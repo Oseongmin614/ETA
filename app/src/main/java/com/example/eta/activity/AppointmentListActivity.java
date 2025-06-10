@@ -2,8 +2,10 @@ package com.example.eta.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -14,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eta.R;
 import com.example.eta.adapter.AppointmentAdapter;
 import com.example.eta.model.AppointmentRoom;
-import com.example.eta.util.DatabaseConstants;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -49,7 +50,7 @@ public class AppointmentListActivity extends AppCompatActivity {
         loadAppointmentRooms();
     }
 
-    // SharedPreferences 제거 - Intent에서만 데이터 받기
+    // Intent에서 사용자 정보 받기
     private void getIntentData() {
         nickname = getIntent().getStringExtra("nickname");
         userId = getIntent().getStringExtra("userId");
@@ -101,11 +102,51 @@ public class AppointmentListActivity extends AppCompatActivity {
         fabCreateAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCreateChatRoomDialog();
+                PopupMenu popup = new PopupMenu(AppointmentListActivity.this, fabCreateAppointment);
+                popup.getMenuInflater().inflate(R.menu.chat_room_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.menu_create_chat_room) {
+                        showCreateChatRoomDialog();
+                        return true;
+                    } else if (item.getItemId() == R.id.menu_join_chat_room) {
+                       showJoinChatRoomDialog(); // 새로 구현 필요
+                        return true;
+                    }
+                    return false;
+                });
+                popup.show();
             }
         });
+
+    }
+    private void showJoinChatRoomDialog() {
+        // 다이얼로그 레이아웃 inflate
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_join_chat_room, null);
+
+        EditText editChatRoomCode = dialogView.findViewById(R.id.editChatRoomCode);
+
+        new AlertDialog.Builder(this)
+                .setTitle("채팅방 참여하기")
+                .setView(dialogView)
+                .setPositiveButton("참여", (dialog, which) -> {
+                    String code = editChatRoomCode.getText().toString().trim();
+                    if (!code.isEmpty()) {
+                        joinChatRoom(code); // 실제 채팅방 참여 로직 함수
+                    } else {
+                        Toast.makeText(this, "채팅방 코드를 입력하세요.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("취소", null)
+                .show();
     }
 
+    // 실제 채팅방 참여 로직 예시
+    private void joinChatRoom(String code) {
+        // 서버에 코드로 채팅방 참여 요청 등 실제 구현 필요
+        Toast.makeText(this, "채팅방 [" + code + "] 참여 시도!", Toast.LENGTH_SHORT).show();
+        // TODO: 참여 성공 시 채팅방 화면으로 이동 등 처리
+    }
     private void showCreateChatRoomDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("새 채팅방 만들기");
@@ -131,6 +172,7 @@ public class AppointmentListActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+    // 채팅방 생성: participants에 생성자 추가
     private void createChatRoom(String chatRoomName) {
         String roomId = databaseReference.child("chatRooms").push().getKey();
         AppointmentRoom newRoom = new AppointmentRoom(
@@ -141,11 +183,12 @@ public class AppointmentListActivity extends AppCompatActivity {
                 1 // 참여자 수 (생성자 포함)
         );
 
+        // 1. 채팅방 정보 저장
         databaseReference.child("chatRooms")
                 .child(roomId)
                 .setValue(newRoom)
                 .addOnSuccessListener(aVoid -> {
-                    // 생성자를 참여자로 추가
+                    // 2. 생성자를 participants에 추가
                     addUserToChatRoom(roomId);
                     Toast.makeText(this, "채팅방이 생성되었습니다", Toast.LENGTH_SHORT).show();
                 })
@@ -154,6 +197,7 @@ public class AppointmentListActivity extends AppCompatActivity {
                 });
     }
 
+    // participants에 userId 추가
     private void addUserToChatRoom(String roomId) {
         databaseReference.child("chatRooms")
                 .child(roomId)
@@ -162,6 +206,7 @@ public class AppointmentListActivity extends AppCompatActivity {
                 .setValue(nickname);
     }
 
+    // participants에 내가 포함된 채팅방만 목록에 추가
     private void loadAppointmentRooms() {
         databaseReference.child("chatRooms")
                 .addValueEventListener(new ValueEventListener() {
@@ -169,9 +214,13 @@ public class AppointmentListActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         appointmentRoomList.clear();
                         for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
-                            AppointmentRoom room = roomSnapshot.getValue(AppointmentRoom.class);
-                            if (room != null) {
-                                appointmentRoomList.add(room);
+                            // participants에 내 userId가 있는지 확인
+                            DataSnapshot participantsSnapshot = roomSnapshot.child("participants");
+                            if (participantsSnapshot.hasChild(userId)) {
+                                AppointmentRoom room = roomSnapshot.getValue(AppointmentRoom.class);
+                                if (room != null) {
+                                    appointmentRoomList.add(room);
+                                }
                             }
                         }
                         appointmentAdapter.notifyDataSetChanged();

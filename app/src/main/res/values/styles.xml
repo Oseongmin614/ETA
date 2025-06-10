@@ -41,4 +41,8 @@
         <item name="android:background">@color/button_primary</item>
         <item name="android:textSize">16sp</item>
     </style>
+
+    <style name="PopupMenuTextStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
 </resources>
