@@ -125,7 +125,7 @@ public class LocationService extends Service implements LocationResultListener {
 
         // 1. DB에 위치 정보 전송 (10초 간격)
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastLogTime > 10000) {
+        if (currentTime - lastLogTime > 3000) {
             lastLogTime = currentTime;
             if (chatRoomId != null && userId != null) {
                 mapDBInsertService.gps(chatRoomId, userId, latitude + "," + longitude);

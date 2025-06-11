@@ -91,10 +91,6 @@ public class ChatActivity extends AppCompatActivity {
         // 실시간 시계 시작
         startClock();
         // 위치 공유 시작
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            checkAndRequestBackgroundLocationPermission();
-        }
-
 
     }
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -247,19 +243,13 @@ public class ChatActivity extends AppCompatActivity {
         // 출발 버튼 (아이콘만)
         LinearLayout menuDeparture = findViewById(R.id.menu_departure);
         menuDeparture.setOnClickListener(v -> {
-            Toast.makeText(this, "출발 기능은 개발 중입니다", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "출발합니다", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                checkAndRequestBackgroundLocationPermission();
+            }
             hideQuickMenu();
         });
 
-        // 친구위치 버튼 (MapFriendsActivity 실행)
-        LinearLayout menuMapFriends = findViewById(R.id.menu_mapFriends);
-        menuMapFriends.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MapFriendsActivity.class);
-            intent.putExtra("userId", currentUserId);
-            intent.putExtra("roomId", chatRoomId);
-            startActivity(intent);
-            hideQuickMenu();
-        });
     }
 
     private void toggleQuickMenu() {
