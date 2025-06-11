@@ -45,17 +45,13 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<ChatMessage> messageList;
 
-    // Firebase 관련 변수
     private DatabaseReference mDatabase;
     private String currentUserId;
     private String chatRoomId;
     private String nickname;
     private String roomName;
 
-    // 퀵메뉴 표시 상태
     private boolean isQuickMenuVisible = false;
-
-    // 시계 업데이트용 핸들러
     private Handler timeHandler = new Handler();
     private Runnable timeRunnable;
 
@@ -64,22 +60,12 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Intent에서 데이터 받기
         getIntentData();
-
-        // Firebase 초기화
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        // UI 초기화
         initializeChatUI();
-
-        // 메시지 로드
         loadMessages();
-
-        // 입장 메시지 전송
         sendJoinMessage();
-
-        // 실시간 시계 시작
+        registerParticipant(); // ✅ 입장 시 참여자 등록
         startClock();
     }
 
@@ -96,13 +82,11 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void initializeChatUI() {
-        // 액션바 설정
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(roomName != null ? roomName : "채팅방");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // 뷰 초기화
         recyclerView = findViewById(R.id.recyclerView);
         messageInput = findViewById(R.id.messageInput);
         sendButton = findViewById(R.id.sendButton);
@@ -110,25 +94,21 @@ public class ChatActivity extends AppCompatActivity {
         layoutQuickMenu = findViewById(R.id.layout_quick_menu);
         textCurrentTime = findViewById(R.id.text_current_time);
 
-        // 다크 테마 UI 설정
         messageInput.setTextColor(getResources().getColor(R.color.text_primary));
         messageInput.setHintTextColor(getResources().getColor(R.color.text_secondary));
         sendButton.setBackgroundColor(getResources().getColor(R.color.button_primary));
         sendButton.setTextColor(getResources().getColor(R.color.text_primary));
 
-        // RecyclerView 설정
         messageList = new ArrayList<>();
         chatAdapter = new ChatAdapter(this, messageList, currentUserId);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(chatAdapter);
         recyclerView.setBackgroundColor(getResources().getColor(R.color.background_color));
 
-        // 클릭 리스너 설정
         setupClickListeners();
     }
 
     private void setupClickListeners() {
-        // 전송 버튼 클릭 리스너
         sendButton.setOnClickListener(v -> {
             String message = messageInput.getText().toString().trim();
             if (!message.isEmpty()) {
@@ -137,69 +117,51 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        // 퀵메뉴 토글 버튼
         btnQuickMenu.setOnClickListener(v -> toggleQuickMenu());
 
-        // 메시지 입력창 포커스 리스너
         messageInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus && isQuickMenuVisible) {
                 hideQuickMenu();
             }
         });
 
-        // 퀵메뉴 버튼들
         setupQuickMenuButtons();
     }
 
     private void setupQuickMenuButtons() {
-        // 알람 버튼 (AlarmActivity 실행)
         LinearLayout menuAlarm = findViewById(R.id.menu_alarm);
         menuAlarm.setOnClickListener(v -> {
-            try {
-                Intent intent = new Intent(this, AlarmActivity.class);
-                intent.putExtra("nickname", nickname);
-                intent.putExtra("userId", currentUserId);
-                intent.putExtra("chatRoomId", chatRoomId);
-                intent.putExtra("roomName", roomName);
-                startActivity(intent);
-                hideQuickMenu();
-                Toast.makeText(this, "알람을 실행합니다", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                Toast.makeText(this, "알람 실행 중 오류가 발생했습니다: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = new Intent(this, AlarmActivity.class);
+            intent.putExtra("nickname", nickname);
+            intent.putExtra("userId", currentUserId);
+            intent.putExtra("chatRoomId", chatRoomId);
+            intent.putExtra("roomName", roomName);
+            startActivity(intent);
+            hideQuickMenu();
         });
 
-        // 지도 버튼 (MapActivity 실행)
         LinearLayout menuMap = findViewById(R.id.menu_map);
         menuMap.setOnClickListener(v -> {
-            try {
-                Intent intent = new Intent(this, MapActivity.class);
-                intent.putExtra("nickname", nickname);
-                intent.putExtra("userId", currentUserId);
-                intent.putExtra("roomId", chatRoomId);
-                startActivity(intent);
-                hideQuickMenu();
-                Toast.makeText(this, "지도를 실행합니다", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                Toast.makeText(this, "지도 실행 중 오류가 발생했습니다: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = new Intent(this, MapActivity.class);
+            intent.putExtra("nickname", nickname);
+            intent.putExtra("userId", currentUserId);
+            intent.putExtra("roomId", chatRoomId);
+            startActivity(intent);
+            hideQuickMenu();
         });
 
-        // 공유 버튼 (아이콘만)
         LinearLayout menuShare = findViewById(R.id.menu_share);
         menuShare.setOnClickListener(v -> {
             Toast.makeText(this, "공유 기능은 개발 중입니다", Toast.LENGTH_SHORT).show();
             hideQuickMenu();
         });
 
-        // 출발 버튼 (아이콘만)
         LinearLayout menuDeparture = findViewById(R.id.menu_departure);
         menuDeparture.setOnClickListener(v -> {
             Toast.makeText(this, "출발 기능은 개발 중입니다", Toast.LENGTH_SHORT).show();
             hideQuickMenu();
         });
 
-        // 친구위치 버튼 (아이콘만)
         LinearLayout menuMapFriends = findViewById(R.id.menu_mapFriends);
         menuMapFriends.setOnClickListener(v -> {
             Intent intent = new Intent(this, MapFriendsActivity.class);
@@ -217,23 +179,15 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void showQuickMenu() {
-        // 키보드 숨기기
         hideKeyboard();
-
-        // 퀵메뉴 보이기
         layoutQuickMenu.setVisibility(View.VISIBLE);
         isQuickMenuVisible = true;
-
-        // + 버튼을 X로 변경
         btnQuickMenu.setText("×");
     }
 
     private void hideQuickMenu() {
-        // 퀵메뉴 숨기기
         layoutQuickMenu.setVisibility(View.GONE);
         isQuickMenuVisible = false;
-
-        // + 버튼 원래대로
         btnQuickMenu.setText("+");
     }
 
@@ -245,27 +199,13 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void startClock() {
-        timeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-                String currentTime = sdf.format(new Date());
-                textCurrentTime.setText(currentTime);
-
-                // 1초마다 업데이트
-                timeHandler.postDelayed(this, 1000);
-            }
+        timeRunnable = () -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            String currentTime = sdf.format(new Date());
+            textCurrentTime.setText(currentTime);
+            timeHandler.postDelayed(timeRunnable, 1000);
         };
         timeHandler.post(timeRunnable);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // 핸들러 정리
-        if (timeHandler != null && timeRunnable != null) {
-            timeHandler.removeCallbacks(timeRunnable);
-        }
     }
 
     private void loadMessages() {
@@ -281,17 +221,10 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     }
 
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                    @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+                    @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                    @Override public void onCancelled(@NonNull DatabaseError error) {
                         Toast.makeText(ChatActivity.this, "메시지 로드 실패: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -309,8 +242,7 @@ public class ChatActivity extends AppCompatActivity {
         if (messageId != null) {
             mDatabase.child("chats").child(chatRoomId).child("messages").child(messageId).setValue(chatMessage)
                     .addOnFailureListener(e ->
-                            Toast.makeText(ChatActivity.this, "메시지 전송 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+                            Toast.makeText(ChatActivity.this, "메시지 전송 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -327,6 +259,41 @@ public class ChatActivity extends AppCompatActivity {
         if (messageId != null) {
             mDatabase.child("chats").child(chatRoomId).child("messages").child(messageId).setValue(joinMessage);
         }
+    }
+
+    private void sendLeaveMessage() {
+        ChatMessage leaveMessage = new ChatMessage(
+                "system",
+                "",
+                nickname + "님이 채팅에서 퇴장하였습니다.",
+                System.currentTimeMillis(),
+                ChatMessage.TYPE_SYSTEM
+        );
+
+        String messageId = mDatabase.child("chats").child(chatRoomId).child("messages").push().getKey();
+        if (messageId != null) {
+            mDatabase.child("chats").child(chatRoomId).child("messages").child(messageId).setValue(leaveMessage);
+        }
+    }
+
+    private void registerParticipant() {
+        mDatabase.child("chats").child(chatRoomId).child("participants")
+                .child(currentUserId).setValue(nickname);
+    }
+
+    private void unregisterParticipant() {
+        mDatabase.child("chats").child(chatRoomId).child("participants")
+                .child(currentUserId).removeValue();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (timeHandler != null && timeRunnable != null) {
+            timeHandler.removeCallbacks(timeRunnable);
+        }
+        sendLeaveMessage();      // ✅ 퇴장 메시지
+        unregisterParticipant(); // ✅ 실시간 참여자 제거
     }
 
     @Override

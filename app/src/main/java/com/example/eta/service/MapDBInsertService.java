@@ -15,9 +15,16 @@ public class MapDBInsertService {
     }
 
     public void insert(String chatRoomId, String colum, String value){
-        String messageId = mDatabase.child("chatRooms").child(chatRoomId).child(colum).push().getKey();
+        String messageId = mDatabase.child("chatRooms").child(chatRoomId).child("Coordinates").child(colum).push().getKey();
         if (messageId != null) {
-            mDatabase.child("chatRooms").child(chatRoomId).child(colum).setValue(value);
+            mDatabase.child("chatRooms").child(chatRoomId).child("Coordinates").child(colum).setValue(value);
+        }
+    }
+
+    public void gps(String chatRoomId, String colum, String value){
+        String messageId = mDatabase.child("chatRooms").child(chatRoomId).child("gps").child(colum).push().getKey();
+        if (messageId != null) {
+            mDatabase.child("chatRooms").child(chatRoomId).child("gps").child(colum).setValue(value);
         }
     }
 }

@@ -1,119 +1,76 @@
 package com.example.eta.activity;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
+import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.eta.R;
 import com.example.eta.adapter.AlarmAdapter;
 import com.example.eta.model.AlarmItem;
-import com.example.eta.receiver.AlarmReceiver;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
-public class AlarmManageActivity extends AppCompatActivity {
+public class AlarmManageActivity extends Activity {
 
-    private static final int REQUEST_CODE_ADD_ALARM = 100;
-
-    private RecyclerView recyclerView;
-    private AlarmAdapter alarmAdapter;
+    private RecyclerView alarmRecyclerView;
+    private AlarmAdapter adapter;
     private ArrayList<AlarmItem> alarmList;
-    private Button btnSetAlarm;
-    private TextView textCurrentTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_alarm_manage);
 
-        initViews();
-        setupClickListeners();
+        // 🔧 루트 레이아웃 생성
+        LinearLayout rootLayout = new LinearLayout(this);
+        rootLayout.setOrientation(LinearLayout.VERTICAL);
+        rootLayout.setPadding(32, 32, 32, 32);
+        rootLayout.setBackgroundColor(0xFF121212); // 다크 배경
+        rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
 
+        // 🔧 RecyclerView 생성
+        alarmRecyclerView = new RecyclerView(this);
+        alarmRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        alarmRecyclerView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f
+        ));
+
+        // 🔧 뒤로가기 버튼 생성
+        Button btnBack = new Button(this);
+        btnBack.setText("뒤로 가기");
+        btnBack.setTextColor(0xFFFFFFFF);
+        btnBack.setBackgroundColor(0xFFA020F0);
+        btnBack.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        // 🔧 버튼 클릭 시 액티비티 종료
+        btnBack.setOnClickListener(v -> finish());
+
+        // 🔧 리스트 초기화 및 어댑터 연결
         alarmList = new ArrayList<>();
-        alarmAdapter = new AlarmAdapter(this, alarmList);
-        recyclerView.setAdapter(alarmAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
+        adapter = new AlarmAdapter(this, alarmList);
+        alarmRecyclerView.setAdapter(adapter);
 
-    private void initViews() {
-        recyclerView = findViewById(R.id.recycler_alarm_list);
-        btnSetAlarm = findViewById(R.id.btn_set_alarm);
-        textCurrentTime = findViewById(R.id.text_current_time);
-    }
-
-    private void setupClickListeners() {
-        // 알람 설정 버튼 클릭 시 AlarmSetActivity 실행
-        btnSetAlarm.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AlarmSetActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_ADD_ALARM);
-        });
-    }
-
-    private void addAlarm(int hour, int minute) {
-        String timeText = String.format("%02d:%02d", hour, minute);
-        int requestCode = hour * 100 + minute;
-        long timeInMillis = getMillisFromTime(hour, minute);
-
-        AlarmItem alarmItem = new AlarmItem(timeText, requestCode, true, timeInMillis);
-        alarmList.add(alarmItem);
-        alarmAdapter.notifyItemInserted(alarmList.size() - 1);
-
-        Log.d("AlarmManageActivity", "알람 추가됨: " + timeText + ", 총 개수: " + alarmList.size());
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra("hour", hour);
-        intent.putExtra("minute", minute);
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        // 🔧 전달받은 알람이 있다면 추가
+        AlarmItem newAlarm = (AlarmItem) getIntent().getSerializableExtra("alarm");
+        if (newAlarm != null) {
+            alarmList.add(newAlarm);
+            adapter.notifyDataSetChanged();
         }
-    }
 
-    private long getMillisFromTime(int hour, int minute) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTimeInMillis();
-    }
+        // 🔧 레이아웃에 뷰 추가
+        rootLayout.addView(alarmRecyclerView);
+        rootLayout.addView(btnBack);
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_ADD_ALARM && resultCode == RESULT_OK && data != null) {
-            String timeText = data.getStringExtra("timeText");
-            long timeInMillis = data.getLongExtra("timeInMillis", 0);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(timeInMillis);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-
-            addAlarm(hour, minute);
-        }
+        // 🔧 화면에 표시
+        setContentView(rootLayout);
     }
 }

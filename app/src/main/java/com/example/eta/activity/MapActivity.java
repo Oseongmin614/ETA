@@ -37,6 +37,7 @@ public class MapActivity extends AppCompatActivity {
     private String chatRoomId;
     private DatabaseReference mDatabase;
 
+
     // ActivityResultLauncher들
     private final ActivityResultLauncher<Intent> destinationLauncher =
             registerForActivityResult(
