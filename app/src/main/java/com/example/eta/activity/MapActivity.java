@@ -26,6 +26,7 @@ public class MapActivity extends AppCompatActivity {
     private Button buttonSelectDestination;
     private Button buttonSelectStart;
     private Button buttonStartRoute;
+    private Button buttonFriends;
     private TextView textDestination;
     private TextView textStartLocation;
 
@@ -36,6 +37,7 @@ public class MapActivity extends AppCompatActivity {
     private String userId;
     private String chatRoomId;
     private DatabaseReference mDatabase;
+
 
     // ActivityResultLauncher들
     private final ActivityResultLauncher<Intent> destinationLauncher =
@@ -99,6 +101,7 @@ public class MapActivity extends AppCompatActivity {
         buttonSelectDestination = findViewById(R.id.button_select_destination);
         buttonSelectStart = findViewById(R.id.button_select_start);
         buttonStartRoute = findViewById(R.id.button_start_route);
+        buttonFriends = findViewById(R.id.button_friends);
         textDestination = findViewById(R.id.text_destination);
         textStartLocation = findViewById(R.id.text_start_location);
 
@@ -112,6 +115,10 @@ public class MapActivity extends AppCompatActivity {
         buttonStartRoute.setBackgroundColor(getResources().getColor(R.color.button_secondary));
         buttonStartRoute.setTextColor(getResources().getColor(R.color.text_primary));
         buttonStartRoute.setEnabled(false);
+
+        buttonFriends.setBackgroundColor(getResources().getColor(R.color.button_secondary));
+        buttonFriends.setTextColor(getResources().getColor(R.color.text_primary));
+        buttonFriends.setEnabled(true);
 
         textDestination.setTextColor(getResources().getColor(R.color.text_secondary));
         textStartLocation.setTextColor(getResources().getColor(R.color.text_secondary));
@@ -136,6 +143,14 @@ public class MapActivity extends AppCompatActivity {
         buttonStartRoute.setOnClickListener(v -> {
             endPointNaming();
 
+        });
+
+        // 친구 위치 보기 버튼
+        buttonFriends.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MapFriendsActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("roomId", chatRoomId);
+            startActivity(intent);
         });
     }
     private void endPointNaming() {

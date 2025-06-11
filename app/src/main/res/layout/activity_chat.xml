@@ -162,34 +162,6 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/menu_mapFriends"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_menu_icon_active"
-                    android:padding="12dp"
-                    android:src="@android:drawable/ic_menu_mylocation" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="친구위치"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
         </LinearLayout>
 
     </LinearLayout>
