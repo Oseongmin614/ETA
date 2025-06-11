@@ -1,9 +1,13 @@
 package com.example.eta.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -15,13 +19,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eta.R;
 import com.example.eta.adapter.ChatAdapter;
 import com.example.eta.model.ChatMessage;
+import com.example.eta.service.LocationService;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,6 +53,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<ChatMessage> messageList;
 
+    // Firebase 관련 변수
     private DatabaseReference mDatabase;
     private String currentUserId;
     private String chatRoomId;
@@ -54,6 +63,7 @@ public class ChatActivity extends AppCompatActivity {
     private boolean isQuickMenuVisible = false;
     private Handler timeHandler = new Handler();
     private Runnable timeRunnable;
+    private static final int APP_LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +77,45 @@ public class ChatActivity extends AppCompatActivity {
         sendJoinMessage();
         registerParticipant(); // ✅ 입장 시 참여자 등록
         startClock();
+        // 위치 공유 시작
+
+    }
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private void checkAndRequestBackgroundLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.FOREGROUND_SERVICE,
+                    Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            }, APP_LOCATION_PERMISSION_REQUEST_CODE);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION, // 보통 이미 허용되어야 하지만 함께 요청 가능
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    },
+                    APP_LOCATION_PERMISSION_REQUEST_CODE
+            );
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == APP_LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "위치 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show();
+                startLocationService();
+            } else {
+                Toast.makeText(this, "위치 권한이 거부되었습니다. 현위치 기능이 제한됩니다.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void getIntentData() {
@@ -158,16 +207,14 @@ public class ChatActivity extends AppCompatActivity {
 
         LinearLayout menuDeparture = findViewById(R.id.menu_departure);
         menuDeparture.setOnClickListener(v -> {
-            Toast.makeText(this, "출발 기능은 개발 중입니다", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "출발합니다", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                checkAndRequestBackgroundLocationPermission();
+            }
             hideQuickMenu();
         });
 
-        LinearLayout menuMapFriends = findViewById(R.id.menu_mapFriends);
-        menuMapFriends.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MapFriendsActivity.class);
-            startActivity(intent);
-            hideQuickMenu();
-        });
+
     }
 
     private void toggleQuickMenu() {
@@ -206,6 +253,22 @@ public class ChatActivity extends AppCompatActivity {
             timeHandler.postDelayed(timeRunnable, 1000);
         };
         timeHandler.post(timeRunnable);
+    }
+
+
+    // LocationService를 시작하는 메서드
+    private void startLocationService() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("roomId", chatRoomId);
+        serviceIntent.putExtra("userId", currentUserId);
+        ContextCompat.startForegroundService(this, serviceIntent);
+        Log.d("ChatActivity", "LocationService started for room: " + chatRoomId);
+    }
+
+    // LocationService를 중지하는 메서드
+    private void stopLocationService() {
+        stopService(new Intent(this, LocationService.class));
+        Log.d("ChatActivity", "LocationService stopped.");
     }
 
     private void loadMessages() {

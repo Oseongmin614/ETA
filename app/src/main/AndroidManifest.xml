@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 권한 설정 -->
+    <!-- Firebase 사용을 위한 인터넷 권한 추가 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -22,13 +22,12 @@
         android:theme="@style/Theme.ETA"
         tools:targetApi="31">
 
-        <!-- 알람 수신용 브로드캐스트 리시버 (중복 제거됨) -->
+        <!-- 알람 수신용 브로드캐스트 리시버 -->
         <receiver
             android:name=".receiver.AlarmReceiver"
             android:enabled="true"
             android:exported="true" />
 
-        <!-- 앱 시작 액티비티 -->
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
@@ -71,10 +70,11 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
+
+
         <activity
             android:name=".activity.AlarmParticipantListActivity"
             android:exported="false" />
-
     </application>
 
 </manifest>
