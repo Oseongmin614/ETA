@@ -1,6 +1,7 @@
 package com.example.eta.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,7 +30,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eta.R;
 import com.example.eta.adapter.ChatAdapter;
 import com.example.eta.model.ChatMessage;
+import com.example.eta.model.NerCallback;
 import com.example.eta.service.LocationService;
+import com.example.eta.service.NerPointExtractor;
+import com.example.eta.service.NerService;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -64,6 +68,9 @@ public class ChatActivity extends AppCompatActivity {
     private Handler timeHandler = new Handler();
     private Runnable timeRunnable;
     private static final int APP_LOCATION_PERMISSION_REQUEST_CODE = 1001;
+//장소 추출 기능 관련
+    private NerService nerService;
+    private String endStr = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +84,13 @@ public class ChatActivity extends AppCompatActivity {
         sendJoinMessage();
         registerParticipant(); // ✅ 입장 시 참여자 등록
         startClock();
+        createNerService();
         // 위치 공유 시작
 
+    }
+
+    private void createNerService(){
+        nerService = new NerService(this);
     }
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private void checkAndRequestBackgroundLocationPermission() {
@@ -177,6 +189,7 @@ public class ChatActivity extends AppCompatActivity {
         setupQuickMenuButtons();
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private void setupQuickMenuButtons() {
         LinearLayout menuAlarm = findViewById(R.id.menu_alarm);
         menuAlarm.setOnClickListener(v -> {
@@ -195,6 +208,9 @@ public class ChatActivity extends AppCompatActivity {
             intent.putExtra("nickname", nickname);
             intent.putExtra("userId", currentUserId);
             intent.putExtra("roomId", chatRoomId);
+            if(endStr != null) {
+                intent.putExtra("endAdder", endStr);
+            }
             startActivity(intent);
             hideQuickMenu();
         });
@@ -301,11 +317,37 @@ public class ChatActivity extends AppCompatActivity {
                 System.currentTimeMillis()
         );
 
+
         String messageId = mDatabase.child("chats").child(chatRoomId).child("messages").push().getKey();
         if (messageId != null) {
             mDatabase.child("chats").child(chatRoomId).child("messages").child(messageId).setValue(chatMessage)
                     .addOnFailureListener(e ->
                             Toast.makeText(ChatActivity.this, "메시지 전송 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+
+        // 2. NerService를 호출하여 응답을 받음
+        if (nerService != null) {
+            nerService.requestNer(messageText, new NerCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    // 성공 응답을 시스템 메시지로 채팅방에 추가
+                    Log.i("NER_SUCCESS", "NER 응답: " + response);
+
+                    // 응답 내용이 있을 경우에만 메시지 표시
+                    if (response != null && !response.equals("분석된 장소 없음") && !response.isEmpty()) {
+                        endStr = response;
+                    }
+                }
+
+
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // 실패 시 로그 출력 및 간단한 토스트 메시지 표시
+                    Log.e("NER_FAILURE", "NER 요청 실패", t);
+                    Toast.makeText(ChatActivity.this, "NER 분석 실패", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 

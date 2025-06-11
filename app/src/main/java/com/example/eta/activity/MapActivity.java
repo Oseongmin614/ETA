@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.eta.R;
+import com.example.eta.service.NerPointExtractor;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -32,11 +33,13 @@ public class MapActivity extends AppCompatActivity {
 
     // 데이터
     private String endAddr;
+    private String endStr;
     private String startAddr;
     private String nickname;
     private String userId;
     private String chatRoomId;
     private DatabaseReference mDatabase;
+    NerPointExtractor extractor;
 
 
     // ActivityResultLauncher들
@@ -89,12 +92,37 @@ public class MapActivity extends AppCompatActivity {
         getIntentData();
         initViews();
         setupClickListeners();
+        setEndAddr();
+    }
+
+    private void setEndAddr() {
+        extractor = new NerPointExtractor();
+        if (endStr != null) {
+            extractor.getFirstPOICoordinates(endStr , new NerPointExtractor.TMapSearchCallback() {
+                @Override
+                public void onSuccess(String coordinates) {
+                    // UI 스레드에서 UI 업데이트
+                    runOnUiThread(() -> {
+                        endAddr = coordinates;
+                        textDestination.setText(endStr);
+                    });
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Log.e("MainActivity", "실패: " + errorMessage);
+                    });
+                }
+            });
+        }
     }
 
     private void getIntentData() {
         nickname = getIntent().getStringExtra("nickname");
         userId = getIntent().getStringExtra("userId");
         chatRoomId = getIntent().getStringExtra("roomId");
+        endStr = getIntent().getStringExtra("endAdder");
     }
 
     private void initViews() {
@@ -115,6 +143,7 @@ public class MapActivity extends AppCompatActivity {
         buttonStartRoute.setBackgroundColor(getResources().getColor(R.color.button_secondary));
         buttonStartRoute.setTextColor(getResources().getColor(R.color.text_primary));
         buttonStartRoute.setEnabled(false);
+
 
         buttonFriends.setBackgroundColor(getResources().getColor(R.color.button_secondary));
         buttonFriends.setTextColor(getResources().getColor(R.color.text_primary));
