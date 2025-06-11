@@ -43,6 +43,7 @@
     </style>
 
     <style name="PopupMenuTextStyle" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:popupBackground">@drawable/popup_menu_background</item>
     </style>
 </resources>

@@ -102,25 +102,26 @@ public class AppointmentListActivity extends AppCompatActivity {
         fabCreateAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(AppointmentListActivity.this, fabCreateAppointment);
+                PopupMenu popup = new PopupMenu(AppointmentListActivity.this, fabCreateAppointment, 0, 0, R.style.PopupMenuTextStyle);
                 popup.getMenuInflater().inflate(R.menu.chat_room_menu, popup.getMenu());
+
                 popup.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.menu_create_chat_room) {
                         showCreateChatRoomDialog();
                         return true;
                     } else if (item.getItemId() == R.id.menu_join_chat_room) {
-                       showJoinChatRoomDialog(); // 새로 구현 필요
+                        showJoinChatRoomDialog();
                         return true;
                     }
                     return false;
                 });
+
                 popup.show();
             }
         });
 
     }
     private void showJoinChatRoomDialog() {
-        // 다이얼로그 레이아웃 inflate
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dialog_join_chat_room, null);
 
