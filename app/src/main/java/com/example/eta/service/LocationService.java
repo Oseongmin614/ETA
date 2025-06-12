@@ -35,6 +35,10 @@ public class LocationService extends Service implements LocationResultListener {
     private long lastLogTime = 0;
     private String chatRoomId;
     private String userId;
+    private String endAddr;
+    private double endLat = -1; // [추가] 목적지 위도
+    private double endLon = -1; // [추가] 목적지 경도
+
 
     /**
      * 액티비티와 서비스가 통신하기 위한 인터페이스
@@ -69,6 +73,23 @@ public class LocationService extends Service implements LocationResultListener {
         if (intent != null) {
             this.chatRoomId = intent.getStringExtra("roomId");
             this.userId = intent.getStringExtra("userId");
+            this.endAddr = intent.getStringExtra("endAddr");
+            // [추가] endAddr 문자열을 파싱하여 위도, 경도로 변환
+            if (this.endAddr != null && !this.endAddr.isEmpty()) {
+                try {
+                    String[] coords = this.endAddr.split(",");
+                    if (coords.length == 2) {
+                        this.endLat = Double.parseDouble(coords[0].trim());
+                        this.endLon = Double.parseDouble(coords[1].trim());
+                        Log.i(TAG, "목적지 좌표 설정됨: " + endLat + ", " + endLon);
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "잘못된 형식의 목적지 좌표입니다: " + this.endAddr, e);
+                    // 파싱 실패 시, 도착 처리 로직이 실행되지 않도록 초기값(-1)을 유지
+                    this.endLat = -1;
+                    this.endLon = -1;
+                }
+            }
         }
 
         // 포그라운드 서비스 시작
@@ -123,18 +144,38 @@ public class LocationService extends Service implements LocationResultListener {
         double longitude = location.getLongitude();
         Log.d(TAG, "서비스에서 현위치 수신: " + latitude + ", " + longitude);
 
-        // 1. DB에 위치 정보 전송 (10초 간격)
+
+
+
+        // 1. DB에 위치 정보 전송 (3초 간격)
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastLogTime > 3000) {
             lastLogTime = currentTime;
             if (chatRoomId != null && userId != null) {
-                mapDBInsertService.gps(chatRoomId, userId, latitude + "," + longitude);
+                mapDBInsertService.insertGPS(chatRoomId, userId, latitude + "," + longitude);
             }
         }
 
         // 2. 연결된 액티비티(클라이언트)에 위치 정보 전달
         if (clientListener != null) {
             clientListener.onLocationUpdated(location);
+        }
+
+        //3. 도착 처리
+        // 목적지 좌표가 유효하게 설정되었는지 확인
+        if (endLat != -1 && endLon != -1) {
+            // 현재 위치와 목적지 위치의 위도, 경도 차이의 합을 계산
+            double latDiff = Math.abs(latitude - endLat);
+            double lonDiff = Math.abs(longitude - endLon);
+
+            // 차이의 합이 0.01 이하이면 도착으로 판단
+            // 참고: 위도/경도 0.01 차이는 대략 1km 내외의 거리입니다.
+            if ((latDiff + lonDiff) <= 0.01) {
+                Log.i(TAG, "목적지에 도착했습니다! 위치 서비스를 종료합니다.");
+                mapDBInsertService.insertEnd(chatRoomId, userId);
+                // 서비스 종료. onDestroy()가 호출되어 위치 추적도 중단됨.
+                stopSelf();
+            }
         }
     }
 

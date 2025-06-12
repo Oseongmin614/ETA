@@ -28,6 +28,7 @@ public class MapActivity extends AppCompatActivity {
     private Button buttonSelectStart;
     private Button buttonStartRoute;
     private Button buttonFriends;
+    private Button buttonEndown;
     private TextView textDestination;
     private TextView textStartLocation;
 
@@ -53,13 +54,11 @@ public class MapActivity extends AppCompatActivity {
                             String locationName = data.getStringExtra("locationName");
                             textDestination.setText(locationName != null ? locationName : "목적지 선택됨");
                             Log.d(TAG, "목적지 받음: " + endAddr);
-                            String messageId = mDatabase.child("chatRooms").child(chatRoomId).child("endPoint").push().getKey();
-                            if (messageId != null) {
                                 mDatabase.child("chatRooms").child(chatRoomId).child("endPoint").setValue(endAddr)
                                         .addOnFailureListener(e ->
                                                 Toast.makeText(MapActivity.this, "메시지 전송 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                                         );
-                            }
+
                             updateRouteButton();
                         }
                     });
@@ -92,7 +91,40 @@ public class MapActivity extends AppCompatActivity {
         getIntentData();
         initViews();
         setupClickListeners();
-        setEndAddr();
+        checkEndAddr();
+    }
+
+    private void checkEndAddr() {
+        DatabaseReference chatRoomRef = mDatabase.child("chatRooms").child(chatRoomId);
+        chatRoomRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult().exists()) {
+                com.google.firebase.database.DataSnapshot snapshot = task.getResult();
+
+                // 1. endPoint (목적지 좌표) 값을 가져와 endAddr 변수에 저장합니다.
+                if (snapshot.hasChild("endPoint")) {
+                    String fetchedEndAddr = snapshot.child("endPoint").getValue(String.class);
+                    if (fetchedEndAddr != null && !fetchedEndAddr.isEmpty()) {
+                        endAddr = fetchedEndAddr;
+                        Log.d(TAG, "Firebase에서 목적지 좌표 로드 성공: " + endAddr);
+                    }
+                }
+
+                // 2. endName (목적지 이름) 값을 가져와 TextView에 표시합니다.
+                if (snapshot.hasChild("endName")) {
+                    String endName = snapshot.child("endName").getValue(String.class);
+                    if (endName != null && !endName.isEmpty()) {
+                        // UI 업데이트는 메인 스레드에서 실행해야 합니다.
+                        runOnUiThread(() -> textDestination.setText(endName));
+                    }
+                }
+
+                // 3. 출발지와 목적지가 모두 설정되었는지 확인하여 버튼 상태를 업데이트합니다.
+                runOnUiThread(this::updateRouteButton);
+
+            } else {
+                Log.e(TAG, "Firebase에서 목적지 정보를 가져오는데 실패했습니다.", task.getException());
+            }
+        });
     }
 
     private void setEndAddr() {
@@ -130,6 +162,7 @@ public class MapActivity extends AppCompatActivity {
         buttonSelectStart = findViewById(R.id.button_select_start);
         buttonStartRoute = findViewById(R.id.button_start_route);
         buttonFriends = findViewById(R.id.button_friends);
+        buttonEndown = findViewById(R.id.button_endown);
         textDestination = findViewById(R.id.text_destination);
         textStartLocation = findViewById(R.id.text_start_location);
 
@@ -148,6 +181,10 @@ public class MapActivity extends AppCompatActivity {
         buttonFriends.setBackgroundColor(getResources().getColor(R.color.button_secondary));
         buttonFriends.setTextColor(getResources().getColor(R.color.text_primary));
         buttonFriends.setEnabled(true);
+
+        buttonEndown.setBackgroundColor(getResources().getColor(R.color.button_secondary));
+        buttonEndown.setTextColor(getResources().getColor(R.color.text_primary));
+        buttonEndown.setEnabled(true);
 
         textDestination.setTextColor(getResources().getColor(R.color.text_secondary));
         textStartLocation.setTextColor(getResources().getColor(R.color.text_secondary));
@@ -179,7 +216,13 @@ public class MapActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MapFriendsActivity.class);
             intent.putExtra("userId", userId);
             intent.putExtra("roomId", chatRoomId);
+            intent.putExtra("endAddr", endAddr);
             startActivity(intent);
+        });
+
+        // 목적지 받아오기 버튼
+        buttonEndown.setOnClickListener(v -> {
+            setEndAddr();
         });
     }
     private void endPointNaming() {

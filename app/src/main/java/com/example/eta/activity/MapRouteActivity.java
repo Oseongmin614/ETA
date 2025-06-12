@@ -50,7 +50,7 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
-public class MapRouteActivity extends AppCompatActivity implements LocationService.LocationClientListener {
+public class MapRouteActivity extends AppCompatActivity  {
 
     private static final String TAG = "RouteMapActivity";
     private static final String ROUTE_API_BASE = "https://apis.openapi.sk.com";
@@ -70,8 +70,7 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
     private TMapPoint startPoint;
     private TMapPoint endPoint;
     // 위치 정보 관련
-    private LocationService locationService;
-    private boolean isServiceBound = false;
+
 
     private TMapMarkerItem markergps = new TMapMarkerItem(); // 현위치 마커
 
@@ -111,8 +110,7 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
         if (startAddr != null && endAddr != null) {
             calculateRoute(); // 기존 ETA 경로 계산 로직 호출
         }
-        // 위치 업데이트 시작은 onResume으로 이동 (protoMap 스타일)
-        startAndBindLocationService();
+
 
     }
 
@@ -267,6 +265,9 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
             instructions.add(0, "총 소요 시간: " + timeFormatted);
             textRouteInfo.setText(TextUtils.join("\n", instructions));
 
+            //소요시간 db 입력
+            mapDBInsertService.insertTime(chatRoomId, userId, timeFormatted);
+
         } catch (Exception e) {
             Log.e(TAG, "지도 그리기 실패", e);
             Toast.makeText(this, "경로 표시에 실패했습니다", Toast.LENGTH_SHORT).show();
@@ -390,25 +391,6 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
         return sb.toString().trim();
     }
 
-    // --- 위치 표시 관련 (protoMap 스타일 적용) ---
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationService.LocalBinder binder = (LocationService.LocalBinder) service;
-            locationService = binder.getService();
-            isServiceBound = true;
-            locationService.setClientListener(MapRouteActivity.this); // 서비스에 리스너(액티비티 자신) 등록
-            Log.d(TAG, "LocationService에 연결되었습니다.");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            isServiceBound = false;
-            locationService = null;
-            Log.d(TAG, "LocationService 연결이 끊겼습니다.");
-        }
-    };
-
     // 마커 아이콘 설정 로직만 분리
     private void initMarkerIcon() {
         Drawable drawable = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mylocation);
@@ -426,84 +408,5 @@ public class MapRouteActivity extends AppCompatActivity implements LocationServi
             Log.e(TAG, "현위치 마커 아이콘 로드 실패");
         }
     }
-
-    private void startAndBindLocationService() {
-        Intent serviceIntent = new Intent(this, LocationService.class);
-        serviceIntent.putExtra("roomId", chatRoomId);
-        serviceIntent.putExtra("userId", userId);
-
-        // 안드로이드 8.0 이상에서는 startForegroundService 사용
-        ContextCompat.startForegroundService(this, serviceIntent);
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-    // 위치 업데이트 관리 (protoMap 스타일)
-
-
-
-    // Activity 생명주기 (protoMap 스타일 위치 관리)
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (isServiceBound && locationService != null) {
-            locationService.setClientListener(this);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause: 위치 추적 일시중지 호출");
-        if (isServiceBound && locationService != null) {
-            locationService.setClientListener(null);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: 위치 추적 중지 호출");
-        // 서비스 바인딩 해제
-        if (isServiceBound) {
-            unbindService(serviceConnection);
-            isServiceBound = false;
-        }
-
-        // tMapView 리소스 정리 (필요시)
-        // 앱이 꺼질때 추적을 종료하는 코드
-        //stopService(new Intent(this, LocationService.class));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * LocationService로부터 위치 업데이트를 받았을 때 호출되는 새로운 메서드
-     * @param location 서비스가 전달해 준 최신 위치 정보
-     */
-    @Override
-    public void onLocationUpdated(Location location) {
-        if (location == null || tMapView == null) return;
-
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        Log.d(TAG, "액티비티에서 UI 업데이트: " + latitude + ", " + longitude);
-
-        TMapPoint gps = new TMapPoint(latitude, longitude);
-        markergps.setTMapPoint(gps); // 마커 위치 업데이트
-
-        if (tMapView.getMarkerItemFromID("markergps") == null) {
-            tMapView.addMarkerItem("markergps", markergps);
-        }
-        // 필요 시 지도 중심 이동
-        // tMapView.setCenterPoint(longitude, latitude, true);
-    }
-
-
 
 }

@@ -220,12 +220,15 @@ public class ChatActivity extends AppCompatActivity {
             Toast.makeText(this, "공유 기능은 개발 중입니다", Toast.LENGTH_SHORT).show();
             hideQuickMenu();
         });
-
+        //출발
         LinearLayout menuDeparture = findViewById(R.id.menu_departure);
         menuDeparture.setOnClickListener(v -> {
             Toast.makeText(this, "출발합니다", Toast.LENGTH_SHORT).show();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 checkAndRequestBackgroundLocationPermission();
+                mDatabase.child("chats").child(chatRoomId).child("maps").child("ifStart").child(currentUserId).setValue("start")
+                        .addOnFailureListener(e ->
+                                Toast.makeText(ChatActivity.this, "출발값 입력실패", Toast.LENGTH_SHORT).show());
             }
             hideQuickMenu();
         });
@@ -399,6 +402,7 @@ public class ChatActivity extends AppCompatActivity {
         }
         sendLeaveMessage();      // ✅ 퇴장 메시지
         unregisterParticipant(); // ✅ 실시간 참여자 제거
+        stopLocationService();
     }
 
     @Override
