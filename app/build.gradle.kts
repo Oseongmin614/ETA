@@ -41,6 +41,7 @@ dependencies {
     // Firebase BOM
     implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth:22.3.1") // 추가된 버전 명시
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging")  // FCM 푸시 알림용
@@ -98,6 +99,7 @@ dependencies {
 
     // 미디어 및 알림 (알람 소리, 진동용)
     implementation("androidx.media:media:1.7.0")
+    implementation(libs.firebase.storage)
 
     // 테스트
     testImplementation("junit:junit:4.13.2")

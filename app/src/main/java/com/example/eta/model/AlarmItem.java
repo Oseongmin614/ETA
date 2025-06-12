@@ -11,7 +11,7 @@ public class AlarmItem {
         this.isEnabled = true;
     }
 
-    // 주 생성자
+    // 생성자
     public AlarmItem(String timeText, int requestCode) {
         this.timeText = timeText;
         this.requestCode = requestCode;
@@ -19,7 +19,6 @@ public class AlarmItem {
         this.timeInMillis = System.currentTimeMillis();
     }
 
-    // 전체 생성자
     public AlarmItem(String timeText, int requestCode, boolean isEnabled, long timeInMillis) {
         this.timeText = timeText;
         this.requestCode = requestCode;
@@ -27,7 +26,7 @@ public class AlarmItem {
         this.timeInMillis = timeInMillis;
     }
 
-    // Getter 메소드들
+    // Getter
     public String getTimeText() {
         return timeText;
     }
@@ -44,7 +43,7 @@ public class AlarmItem {
         return timeInMillis;
     }
 
-    // Setter 메소드들
+    // Setter
     public void setTimeText(String timeText) {
         this.timeText = timeText;
     }
@@ -54,7 +53,7 @@ public class AlarmItem {
     }
 
     public void setEnabled(boolean enabled) {
-        this.isEnabled = enabled;
+        isEnabled = enabled;
     }
 
     public void setTimeInMillis(long timeInMillis) {

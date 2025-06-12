@@ -1,12 +1,18 @@
 package com.example.eta.activity;
 
+import android.Manifest;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -16,13 +22,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.eta.R;
+import com.example.eta.service.LocationService;
 import com.example.eta.service.MapDBInsertService;
 import com.example.eta.util.Keyholder;
-import com.example.eta.util.LocationHelper; // 수정된 LocationHelper 사용
-import com.example.eta.util.LocationResultListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,7 +39,6 @@ import com.skt.Tmap.TMapView;
 
 import java.util.ArrayList;
 import java.util.List;
-// import java.util.Locale; // 기존 ETA의 formatDuration, formatDistance는 Locale 불필요
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,11 +50,11 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
-public class MapRouteActivity extends AppCompatActivity implements LocationResultListener {
+public class MapRouteActivity extends AppCompatActivity  {
 
     private static final String TAG = "RouteMapActivity";
     private static final String ROUTE_API_BASE = "https://apis.openapi.sk.com";
-    private static final int APP_LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
 
     // UI 컴포넌트
     private FrameLayout mapContainer;
@@ -64,15 +69,15 @@ public class MapRouteActivity extends AppCompatActivity implements LocationResul
     private String chatRoomId;
     private TMapPoint startPoint;
     private TMapPoint endPoint;
+    // 위치 정보 관련
 
-    // 위치 관련 (protoMap 스타일 적용)
-    private LocationHelper locationHelper;
+
     private TMapMarkerItem markergps = new TMapMarkerItem(); // 현위치 마커
 
     // 네트워크 (경로 안내 관련 - ETA 스타일 유지)
     private RouteService routeService;
 
-    MapDBInsertService mapDBInsertService;
+    private MapDBInsertService mapDBInsertService;
 
     // Retrofit 인터페이스 (경로 안내 관련 - ETA 스타일 유지)
     interface RouteService {
@@ -97,7 +102,7 @@ public class MapRouteActivity extends AppCompatActivity implements LocationResul
 
         initViews();
         // 위치 표시 로직 초기화 (protoMap 스타일)
-        initLocationHelperAndMarkerIcon(); // LocationHelper 초기화 및 현위치 마커 아이콘 설정
+        initMarkerIcon(); // LocationHelper 초기화 및 현위치 마커 아이콘 설정
         // 경로 안내 로직 초기화 (ETA 스타일)
         initTMapAndRetrofit(); // TMapView 및 Retrofit 초기화
         getIntentData(); // Intent 데이터 가져오기
@@ -105,7 +110,8 @@ public class MapRouteActivity extends AppCompatActivity implements LocationResul
         if (startAddr != null && endAddr != null) {
             calculateRoute(); // 기존 ETA 경로 계산 로직 호출
         }
-        // 위치 업데이트 시작은 onResume으로 이동 (protoMap 스타일)
+
+
     }
 
     private void initViews() {
@@ -115,25 +121,8 @@ public class MapRouteActivity extends AppCompatActivity implements LocationResul
         textRouteInfo.setBackgroundColor(getResources().getColor(R.color.surface_color));
     }
 
-    // 위치 표시 관련 초기화 (protoMap 스타일)
-    private void initLocationHelperAndMarkerIcon() {
-        locationHelper = new LocationHelper(this); // FusedLocationProviderClient 기반 LocationHelper
-        // 현위치 마커 아이콘 설정 (protoMap 스타일)
-        Drawable drawable = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mylocation); // ETA 기존 아이콘 사용
-        if (drawable != null) {
-            int width = drawable.getIntrinsicWidth();
-            int height = drawable.getIntrinsicHeight();
-            drawable.setBounds(0, 0, width, height);
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.draw(canvas);
-            markergps.setIcon(bitmap);
-            markergps.setName("현위치");
-            markergps.setPosition(0.5f, 1.0f); // 아이콘의 중심을 하단 중앙으로 (protoMap 스타일)
-        } else {
-            Log.e(TAG, "현위치 마커 아이콘 로드 실패");
-        }
-    }
+
+
 
     // 경로 안내 관련 초기화 (ETA 스타일)
     private void initTMapAndRetrofit() {
@@ -276,6 +265,9 @@ public class MapRouteActivity extends AppCompatActivity implements LocationResul
             instructions.add(0, "총 소요 시간: " + timeFormatted);
             textRouteInfo.setText(TextUtils.join("\n", instructions));
 
+            //소요시간 db 입력
+            mapDBInsertService.insertTime(chatRoomId, userId, timeFormatted);
+
         } catch (Exception e) {
             Log.e(TAG, "지도 그리기 실패", e);
             Toast.makeText(this, "경로 표시에 실패했습니다", Toast.LENGTH_SHORT).show();
@@ -399,106 +391,22 @@ public class MapRouteActivity extends AppCompatActivity implements LocationResul
         return sb.toString().trim();
     }
 
-    // --- 위치 표시 관련 (protoMap 스타일 적용) ---
-    @Override
-    public void onLocationSuccess(Location location) {
-        if (location == null || tMapView == null) return;
-
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        Log.d(TAG, "현위치 업데이트: " + latitude + ", " + longitude);
-
-        TMapPoint gps = new TMapPoint(latitude, longitude);
-        markergps.setTMapPoint(gps); // 마커 위치 업데이트
-
-        // 마커가 지도에 없으면 추가, 있으면 위치만 업데이트 (protoMap 스타일)
-        if (tMapView.getMarkerItemFromID("markergps") == null) {
-            tMapView.addMarkerItem("markergps", markergps);
-        }
-        // 현위치로 지도 중심 이동 (선택 사항)
-        // tMapView.setCenterPoint(longitude, latitude, true); // 부드럽게 이동
-    }
-
-    @Override
-    public void onLocationFailure(String errorMessage) { // protoMap 스타일
-        Toast.makeText(this, "위치 오류: " + errorMessage, Toast.LENGTH_LONG).show();
-        // if (locationHelper != null && locationHelper.isTracking()) { stopLocationUpdates(); } // 필요시
-    }
-
-    @Override
-    public void onPermissionNeeded() { // protoMap 스타일
-        Toast.makeText(this, "현위치 표시를 위해 위치 권한이 필요합니다.", Toast.LENGTH_LONG).show();
-        if (locationHelper != null) {
-            locationHelper.requestLocationPermissions(this, APP_LOCATION_PERMISSION_REQUEST_CODE);
-        }
-    }
-
-    // 위치 업데이트 관리 (protoMap 스타일)
-    private void startLocationUpdates() {
-        if (locationHelper == null) return;
-        if (!locationHelper.hasLocationPermissions()) {
-            Log.d(TAG, "위치 권한 없음. LocationHelper 통해 권한 요청 시도.");
-            locationHelper.startLocationTracking(this); // 내부에서 onPermissionNeeded 호출 유도
+    // 마커 아이콘 설정 로직만 분리
+    private void initMarkerIcon() {
+        Drawable drawable = ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mylocation);
+        if (drawable != null) {
+            int width = drawable.getIntrinsicWidth();
+            int height = drawable.getIntrinsicHeight();
+            drawable.setBounds(0, 0, width, height);
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.draw(canvas);
+            markergps.setIcon(bitmap);
+            markergps.setName("현위치");
+            markergps.setPosition(0.5f, 1.0f);
         } else {
-            Log.d(TAG, "위치 권한 있음. 위치 추적 시작.");
-            locationHelper.startLocationTracking(this);
-            Toast.makeText(this, "현위치 추적을 시작합니다.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "현위치 마커 아이콘 로드 실패");
         }
     }
 
-    private void stopLocationUpdates() { // protoMap 스타일
-        if (locationHelper != null && locationHelper.isTracking()) {
-            locationHelper.stopLocationTracking();
-            Toast.makeText(this, "현위치 추적을 중지합니다.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) { // protoMap 스타일
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == APP_LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "위치 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show();
-                startLocationUpdates(); // 권한 허용 후 위치 업데이트 시작
-            } else {
-                Toast.makeText(this, "위치 권한이 거부되었습니다. 현위치 기능이 제한됩니다.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    // Activity 생명주기 (protoMap 스타일 위치 관리)
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (locationHelper != null && !locationHelper.isTracking()) {
-            Log.d(TAG, "onResume: 위치 추적 시작 호출");
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause: 위치 추적 중지 호출");
-        stopLocationUpdates();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: 위치 추적 중지 호출");
-        if (locationHelper != null) {
-            locationHelper.stopLocationTracking();
-        }
-        // tMapView 리소스 정리 (필요시)
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

@@ -11,6 +11,8 @@
     <color name="gray4">#CED4DA</color>
     <color name="gray2">#E9ECEF</color>
 
+    <color name="text_on_primary">#FFFFFF</color>  <!-- 버튼 위의 텍스트는 흰색 -->
+
     <!-- 앱 테마 색상 -->
     <color name="primary_color">@color/gray9</color>
     <color name="background_color">@color/black</color>
