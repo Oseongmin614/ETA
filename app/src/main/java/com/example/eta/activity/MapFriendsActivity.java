@@ -246,18 +246,38 @@ public class MapFriendsActivity extends AppCompatActivity implements LocationSer
 
         // ... 기존 폴리라인 파싱 및 추가 로직 (동일)
         try {
-            JsonObject itinerary = coordinatesJson.getAsJsonObject("metaData")
-                    .getAsJsonObject("plan")
-                    .getAsJsonArray("itineraries")
-                    .get(0)
+            JsonObject itinerary = coordinatesJson
                     .getAsJsonObject();
 
             JsonArray legs = itinerary.getAsJsonArray("legs");
 
+            // 2. 각 이동 구간(leg)을 순회합니다.
             for (JsonElement legElement : legs) {
                 JsonObject leg = legElement.getAsJsonObject();
-                if (leg.has("passShape")) {
-                    String lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
+
+                // 3. passShape 또는 steps에서 좌표 데이터를 수집합니다. (이전 로직과 동일)
+                String lineString = null;
+
+                // Case 1: passShape가 있는 경우 (주로 버스, 지하철 등)
+                if (leg.has("passShape") && leg.getAsJsonObject("passShape").has("linestring")) {
+                    lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
+
+                    // Case 2: passShape는 없지만 steps가 있는 경우 (주로 도보)
+                } else if (leg.has("steps")) {
+                    JsonArray steps = leg.getAsJsonArray("steps");
+                    StringBuilder combinedLineString = new StringBuilder();
+
+                    for (JsonElement stepElement : steps) {
+                        JsonObject step = stepElement.getAsJsonObject();
+                        if (step.has("linestring")) {
+                            combinedLineString.append(step.get("linestring").getAsString()).append(" ");
+                        }
+                    }
+                    lineString = combinedLineString.toString().trim();
+                }
+
+                // 4. 수집된 좌표가 있다면 폴리라인에 점을 추가합니다.
+                if (lineString != null && !lineString.isEmpty()) {
                     for (String coordinate : lineString.split(" ")) {
                         String[] coords = coordinate.split(",");
                         if (coords.length >= 2) {
@@ -266,7 +286,10 @@ public class MapFriendsActivity extends AppCompatActivity implements LocationSer
                     }
                 }
             }
+
+            // 5. 완성된 폴리라인을 지도에 추가합니다.
             tMapView.addTMapPolyLine("route" + otherUserId, poly);
+
         } catch (Exception e) {
             Log.e(TAG, "라인 추가 실패 (User: " + otherUserId + ")", e);
         }
@@ -279,10 +302,7 @@ public class MapFriendsActivity extends AppCompatActivity implements LocationSer
 
         // ... 기존 폴리라인 파싱 및 추가, 정보 텍스트 표시 로직 (동일)
         try {
-            JsonObject itinerary = response.getAsJsonObject("metaData")
-                    .getAsJsonObject("plan")
-                    .getAsJsonArray("itineraries")
-                    .get(0)
+            JsonObject itinerary = response
                     .getAsJsonObject();
 
             int totalTime = itinerary.get("totalTime").getAsInt();
@@ -291,16 +311,35 @@ public class MapFriendsActivity extends AppCompatActivity implements LocationSer
 
             for (JsonElement legElement : legs) {
                 JsonObject leg = legElement.getAsJsonObject();
-                if (leg.has("passShape")) {
-                    String lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
+
+                // 3. passShape 또는 steps에서 좌표 데이터를 수집합니다. (이전 로직과 동일)
+                String lineString = null;
+
+                // Case 1: passShape가 있는 경우 (주로 버스, 지하철 등)
+                if (leg.has("passShape") && leg.getAsJsonObject("passShape").has("linestring")) {
+                    lineString = leg.getAsJsonObject("passShape").get("linestring").getAsString();
+
+                    // Case 2: passShape는 없지만 steps가 있는 경우 (주로 도보)
+                } else if (leg.has("steps")) {
+                    JsonArray steps = leg.getAsJsonArray("steps");
+                    StringBuilder combinedLineString = new StringBuilder();
+
+                    for (JsonElement stepElement : steps) {
+                        JsonObject step = stepElement.getAsJsonObject();
+                        if (step.has("linestring")) {
+                            combinedLineString.append(step.get("linestring").getAsString()).append(" ");
+                        }
+                    }
+                    lineString = combinedLineString.toString().trim();
+                }
+
+                // 4. 수집된 좌표가 있다면 폴리라인에 점을 추가합니다.
+                if (lineString != null && !lineString.isEmpty()) {
                     for (String coordinate : lineString.split(" ")) {
                         String[] coords = coordinate.split(",");
                         if (coords.length >= 2) {
-                            double lon = Double.parseDouble(coords[0].trim());
-                            double lat = Double.parseDouble(coords[1].trim());
-                            TMapPoint point = new TMapPoint(lat, lon);
-                            poly.addLinePoint(point);
-                            lastPoint = point;
+                            lastPoint = new TMapPoint(Double.parseDouble(coords[1].trim()), Double.parseDouble(coords[0].trim()));
+                            poly.addLinePoint(new TMapPoint(Double.parseDouble(coords[1].trim()), Double.parseDouble(coords[0].trim())));
                         }
                     }
                 }
@@ -353,10 +392,7 @@ public class MapFriendsActivity extends AppCompatActivity implements LocationSer
     }
     private List<String> generateTextInstructions(JsonObject response) {
         try {
-            JsonObject plan = response.getAsJsonObject("metaData")
-                    .getAsJsonObject("plan")
-                    .getAsJsonArray("itineraries")
-                    .get(0)
+            JsonObject plan = response
                     .getAsJsonObject();
 
             JsonArray legs = plan.getAsJsonArray("legs");
@@ -400,13 +436,13 @@ public class MapFriendsActivity extends AppCompatActivity implements LocationSer
                 String transport;
                 switch (seg.mode) {
                     case "WALK":
-                        transport = "도보";
+                        transport = "\uD83D\uDEB6\uD83C\uDFFB\u200D♂\uFE0F";
                         break;
                     case "BUS":
-                        transport = "버스(" + seg.route + ")";
+                        transport = "\uD83D\uDE8C(" + seg.route + ")";
                         break;
                     case "SUBWAY":
-                        transport = "지하철(" + seg.route + ")";
+                        transport = "\uD83D\uDE87(" + seg.route + ")";
                         break;
                     default:
                         transport = seg.mode;

@@ -22,4 +22,10 @@
     <color name="button_primary">@color/gray6</color>
     <color name="button_secondary">@color/gray4</color>
     <color name="divider_color">@color/gray6</color>
+    <color name="walk_line_color">#4CAF50</color>
+    <color name="bus_line_color">#2196F3</color>
+    <color name="subway_line_color">#FF5722</color>
+    <color name="selected_item_color">#9C27B0</color>
+
+
 </resources>
