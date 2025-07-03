@@ -230,6 +230,7 @@ public class MapActivity extends AppCompatActivity {
     private void setupClickListeners() {
         // 목적지 선택 버튼
         buttonSelectDestination.setOnClickListener(v -> {
+            endPointNaming();
             Intent intent = new Intent(this, LocationSearchActivity.class);
             intent.putExtra("searchType", "약속장소는 어디인가요?");
             destinationLauncher.launch(intent);
@@ -242,13 +243,23 @@ public class MapActivity extends AppCompatActivity {
             startLocationLauncher.launch(intent);
         });
 
-        // 길찾기 시작 버튼
+        // 경로 탐색 버튼
         buttonStartRoute.setOnClickListener(v -> {
-            endPointNaming();
+            if (startAddr != null && endAddr != null) {
+                Intent intent = new Intent(this, MapRouteActivity.class);
+                intent.putExtra("start", startAddr);
+                intent.putExtra("end", endAddr);
+                intent.putExtra("nickname", nickname);
+                intent.putExtra("userId", userId);
+                intent.putExtra("roomId", chatRoomId);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "출발지와 목적지를 모두 선택해주세요", Toast.LENGTH_SHORT).show();
+            }
 
         });
 
-        // 친구 위치 보기 버튼
+        // 경로 지도 보기 버튼
         buttonFriends.setOnClickListener(v -> {
             Intent intent = new Intent(this, MapFriendsActivity.class);
             intent.putExtra("userId", userId);
@@ -257,7 +268,7 @@ public class MapActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // 목적지 받아오기 버튼
+        // 빠른 경로 버튼
         buttonEndown.setOnClickListener(v -> {
             setEndAddr();
         });
@@ -283,17 +294,7 @@ public class MapActivity extends AppCompatActivity {
                                     Toast.makeText(MapActivity.this, "메시지 전송 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                             );
                 }
-                if (startAddr != null && endAddr != null) {
-                    Intent intent = new Intent(this, MapRouteActivity.class);
-                    intent.putExtra("start", startAddr);
-                    intent.putExtra("end", endAddr);
-                    intent.putExtra("nickname", nickname);
-                    intent.putExtra("userId", userId);
-                    intent.putExtra("roomId", chatRoomId);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(this, "출발지와 목적지를 모두 선택해주세요", Toast.LENGTH_SHORT).show();
-                }
+
             } else {
                 Toast.makeText(this, "채팅방 이름을 입력해주세요", Toast.LENGTH_SHORT).show();
             }

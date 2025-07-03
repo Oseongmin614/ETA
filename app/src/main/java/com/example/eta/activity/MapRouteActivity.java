@@ -94,11 +94,7 @@ public class MapRouteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // activity_route_map.xml 레이아웃에 RecyclerView와 Button이 추가되어야 합니다.
-        // 예: <LinearLayout android:id="@+id/route_selection_layout" ... >
-        //         <androidx.recyclerview.widget.RecyclerView android:id="@+id/recycler_view_routes" ... />
-        //         <Button android:id="@+id/btn_confirm_route" ... />
-        //     </LinearLayout>
+
         setContentView(R.layout.activity_route_map);
         mapDBInsertService = new MapDBInsertService();
 
