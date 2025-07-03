@@ -93,6 +93,7 @@ dependencies {
 
     // 설정 저장 (알람 설정 저장용)
     implementation("androidx.preference:preference-ktx:1.2.0")
+    implementation ("com.google.firebase:firebase-auth:22.3.1")
 
     // 권한 관리 (알람 권한용)
     implementation("androidx.core:core-ktx:1.12.0")
@@ -109,4 +110,5 @@ dependencies {
     // UI 테스트 (알람 화면 테스트용)
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
+
 }

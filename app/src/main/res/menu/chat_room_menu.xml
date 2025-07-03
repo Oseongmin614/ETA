@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_create_chat_room"
+        android:title="채팅방 만들기"/>
+    <item
+        android:id="@+id/menu_join_chat_room"
+        android:title="채팅방 참여하기
+        "/>
+</menu>

@@ -29,7 +29,7 @@ public class MapDBInsertService {
             mDatabase.child("chatRooms").child(chatRoomId).child("maps").child("requiredtime").child(userId).setValue(value);
     }
     public void insertEnd(String chatRoomId, String userId){
-        mDatabase.child("chats").child(chatRoomId).child("maps").child("ifStart").child(userId).setValue("end");
+        mDatabase.child("chatRooms").child(chatRoomId).child("maps").child("ifStart").child(userId).setValue("end");
     }
 
 }

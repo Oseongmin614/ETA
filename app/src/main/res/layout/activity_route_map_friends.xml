@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_color"
     tools:context=".activity.MapFriendsActivity">
+
     <!-- T맵 컨테이너 -->
     <FrameLayout
         android:id="@+id/tmapcon"
@@ -16,7 +17,6 @@
         android:layout_marginBottom="531dp"
         android:layout_weight="1"
         android:background="@color/gray9"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -32,26 +32,35 @@
     </FrameLayout>
 
     <!-- 경로 정보 영역 -->
-    <ScrollView
-        android:id="@+id/scrollView2"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+    <LinearLayout
+        android:id="@+id/route_details_container"
+        android:layout_width="409dp"
+        android:layout_height="260dp"
         android:background="@color/surface_color"
-        android:fillViewport="true"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="8dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/text_route_info"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/surface_color"
-            android:lineSpacingExtra="4dp"
-            android:padding="16dp"
-            android:text="경로를 계산 중입니다..."
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="8dp"
+            android:text="상세 경로"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    </ScrollView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_route_details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="8dp"
+            tools:listitem="@layout/item_route_segment" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
