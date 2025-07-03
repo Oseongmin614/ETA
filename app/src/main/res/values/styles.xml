@@ -40,7 +40,7 @@
         <item name="android:textColorSecondary">#CCCCCC</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppThemeCustom" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- 필요하면 색상 커스터마이징 가능 -->
     </style>
 
@@ -56,7 +56,7 @@
         <item name="android:popupBackground">@drawable/popup_menu_background</item>
     </style>
 
-    <style name="PopupMenuTextStyle" parent="Widget.AppCompat.PopupMenu">
+    <style name="PopupMenuTextStyle2" parent="Widget.AppCompat.PopupMenu">
         <item name="android:popupBackground">@color/background_color</item>
         <item name="android:textColor">@color/text_primary</item>
         <!-- 필요에 따라 추가 스타일 속성 지정 가능 -->

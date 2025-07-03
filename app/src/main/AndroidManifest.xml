@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.eta">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 인터넷 연결 상태 확인을 위한 권한 추가 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -74,9 +73,7 @@
 
         <activity android:name=".activity.CreateRoomInfoActivity" />
 
-        <activity
-            android:name=".activity.AlarmParticipantListActivity"
-            android:exported="false" />
+
 
     </application>
 

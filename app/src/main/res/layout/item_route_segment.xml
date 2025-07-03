@@ -22,7 +22,7 @@
         android:id="@+id/icon_transport"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:background="@drawable/circle_background"
+        android:background="@drawable/circle_map"
         android:padding="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/timeline_line"

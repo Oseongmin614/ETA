@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eta.R;
 import com.example.eta.adapter.AppointmentAdapter;
 import com.example.eta.model.AppointmentRoom;
-import com.example.eta.util.DatabaseConstants;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,7 +58,6 @@ public class AppointmentListActivity extends AppCompatActivity {
     private void getIntentData() {
         nickname = getIntent().getStringExtra("nickname");
         userId = getIntent().getStringExtra("userId");
-
         if (nickname == null || userId == null) {
             Toast.makeText(this, "사용자 정보가 없습니다", Toast.LENGTH_SHORT).show();
             finish();
@@ -107,7 +105,6 @@ public class AppointmentListActivity extends AppCompatActivity {
             public void onClick(View v) {
                 PopupMenu popup = new PopupMenu(AppointmentListActivity.this, fabCreateAppointment, 0, 0, R.style.PopupMenuTextStyle);
                 popup.getMenuInflater().inflate(R.menu.chat_room_menu, popup.getMenu());
-
                 popup.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.menu_create_chat_room) {
                         showCreateChatRoomDialog();
@@ -118,48 +115,13 @@ public class AppointmentListActivity extends AppCompatActivity {
                     }
                     return false;
                 });
-
                 popup.show();
             }
         });
-
-    }
-    private void showJoinChatRoomDialog() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.dialog_join_chat_room, null);
-
-        EditText editChatRoomCode = dialogView.findViewById(R.id.editChatRoomCode);
-
-        new AlertDialog.Builder(this)
-                .setTitle("채팅방 참여하기")
-                .setView(dialogView)
-                .setPositiveButton("참여", (dialog, which) -> {
-                    String code = editChatRoomCode.getText().toString().trim();
-                    if (!code.isEmpty()) {
-                        joinChatRoom(code); // 실제 채팅방 참여 로직 함수
-                    } else {
-                        Toast.makeText(this, "채팅방 코드를 입력하세요.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("취소", null)
-                .show();
     }
 
-    // 실제 채팅방 참여 로직 예시
-    private void joinChatRoom(String code) {
-        // 서버에 코드로 채팅방 참여 요청 등 실제 구현 필요
-        Toast.makeText(this, "채팅방 [" + code + "] 참여 시도!", Toast.LENGTH_SHORT).show();
-        // TODO: 참여 성공 시 채팅방 화면으로 이동 등 처리
-    }
+    // 채팅방 생성 다이얼로그
     private void showCreateChatRoomDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("새 채팅방 만들기");
-        final EditText input = new EditText(this);
-        input.setHint("채팅방 이름을 입력하세요");
-        input.setTextColor(getResources().getColor(R.color.text_primary));
-        input.setHintTextColor(getResources().getColor(R.color.text_secondary));
-        input.setBackgroundColor(getResources().getColor(R.color.surface_color));
-        builder.setView(input);
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dialog_create_chat_room, null);
 
@@ -225,11 +187,6 @@ public class AppointmentListActivity extends AppCompatActivity {
                             createChatRoom(chatRoomName, chatRoomCode);
                         }
                     }
-        builder.setNegativeButton("취소", (dialog, which) -> dialog.cancel());
-        AlertDialog alertDialog = builder.create();
-        alertDialog.getWindow().setBackgroundDrawableResource(R.color.surface_color);
-        alertDialog.show();
-    }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
@@ -248,15 +205,13 @@ public class AppointmentListActivity extends AppCompatActivity {
                 nickname,
                 System.currentTimeMillis(),
                 1,
-                chatRoomCode // 반드시 6번째 인자!
+                chatRoomCode
         );
 
-        // 1. 채팅방 정보 저장
         databaseReference.child("chatRooms")
                 .child(roomId)
                 .setValue(newRoom)
                 .addOnSuccessListener(aVoid -> {
-                    // 2. 생성자를 participants에 추가
                     addUserToChatRoom(roomId);
                     Toast.makeText(this, "채팅방이 생성되었습니다", Toast.LENGTH_SHORT).show();
                 })
@@ -326,7 +281,6 @@ public class AppointmentListActivity extends AppCompatActivity {
     }
 
     // participants에 사용자 추가
-    // participants에 userId 추가
     private void addUserToChatRoom(String roomId) {
         databaseReference.child("chatRooms")
                 .child(roomId)
@@ -354,7 +308,6 @@ public class AppointmentListActivity extends AppCompatActivity {
     }
 
     // participants에 내가 포함된 채팅방만 목록에 표시
-    // participants에 내가 포함된 채팅방만 목록에 추가
     private void loadAppointmentRooms() {
         databaseReference.child("chatRooms")
                 .addValueEventListener(new ValueEventListener() {
@@ -381,6 +334,7 @@ public class AppointmentListActivity extends AppCompatActivity {
                 });
     }
 
+    // 목록에서 채팅방 클릭 시 입장
     private void joinChatRoom(AppointmentRoom appointmentRoom) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("nickname", nickname);
