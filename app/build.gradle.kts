@@ -37,7 +37,6 @@ android {
     }
 }
 
-// dependencies 블록은 android 블록 외부의 최상위 레벨에 위치해야 합니다
 dependencies {
     // Firebase BOM
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
@@ -90,6 +89,9 @@ dependencies {
 
     // 설정 및 권한 관리
     implementation("androidx.preference:preference-ktx:1.2.1")
+    // 설정 저장 (알람 설정 저장용)
+    implementation("androidx.preference:preference-ktx:1.2.0")
+    implementation ("com.google.firebase:firebase-auth:22.3.1")
 
     // 미디어 및 알림
     implementation("androidx.media:media:1.7.0")
@@ -100,4 +102,11 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // UI 테스트 (알람 화면 테스트용)
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+
 }

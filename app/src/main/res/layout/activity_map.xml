@@ -108,7 +108,7 @@
         android:id="@+id/button_start_route"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=" 길찾기 시작"
+        android:text="경로 탐색"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -124,7 +124,7 @@
         android:background="@color/button_secondary"
         android:enabled="false"
         android:padding="20dp"
-        android:text="친구 위치 보기"
+        android:text="경로 지도 보기"
         android:textColor="@color/text_primary"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -136,7 +136,7 @@
         android:background="@color/button_secondary"
         android:enabled="false"
         android:padding="20dp"
-        android:text="위치 받아오기"
+        android:text="빠른 경로 설정"
         android:textColor="@color/text_primary"
         android:textSize="18sp"
         android:textStyle="bold" />
