@@ -68,7 +68,7 @@ public class ChatActivity extends AppCompatActivity {
     private Handler timeHandler = new Handler();
     private Runnable timeRunnable;
     private static final int APP_LOCATION_PERMISSION_REQUEST_CODE = 1001;
-//장소 추출 기능 관련
+    //장소 추출 기능 관련
     private NerService nerService;
     private String endStr = null;
 

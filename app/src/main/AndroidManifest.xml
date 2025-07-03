@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.eta">
 
-    <!-- Firebase 사용을 위한 인터넷 권한 추가 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -22,7 +22,6 @@
         android:theme="@style/Theme.ETA"
         tools:targetApi="31">
 
-        <!-- 알람 수신용 브로드캐스트 리시버 -->
         <receiver
             android:name=".receiver.AlarmReceiver"
             android:enabled="true"
@@ -38,15 +37,13 @@
             </intent-filter>
         </activity>
 
-        <!-- 기타 액티비티들 -->
+        <activity android:name=".activity.SignupActivity" android:exported="false" />
         <activity android:name=".activity.MapFriendsActivity" android:exported="false" />
         <activity android:name=".activity.AppointmentListActivity" android:exported="false" />
         <activity android:name=".activity.ChatActivity" android:exported="false" />
         <activity android:name=".activity.MapActivity" android:exported="false" />
         <activity android:name=".activity.AlarmManageActivity" />
         <activity android:name=".activity.AlarmSetActivity" />
-
-        <!-- 전체화면 알람 Activity -->
         <activity
             android:name=".activity.AlarmActivity"
             android:exported="true"
@@ -55,13 +52,14 @@
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:excludeFromRecents="true" />
-
         <activity
             android:name=".activity.LocationSearchActivity"
             android:exported="false" />
-
         <activity
             android:name=".activity.MapRouteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.AlarmParticipantListActivity"
             android:exported="false" />
 
         <service
@@ -69,12 +67,5 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
-
-
-
-        <activity
-            android:name=".activity.AlarmParticipantListActivity"
-            android:exported="false" />
     </application>
-
 </manifest>
