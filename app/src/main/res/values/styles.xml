@@ -55,4 +55,10 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:popupBackground">@drawable/popup_menu_background</item>
     </style>
+
+    <style name="PopupMenuTextStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@color/background_color</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <!-- 필요에 따라 추가 스타일 속성 지정 가능 -->
+    </style>
 </resources>

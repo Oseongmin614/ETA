@@ -6,20 +6,21 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.widget.*;
-
-import androidx.annotation.NonNull;
-
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.eta.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -36,11 +37,13 @@ public class SignupActivity extends AppCompatActivity {
     private EditText etNickname, etEmail, etPassword;
     private Button btnSignup, btnSelectImage;
     private ImageView ivProfile;
-    private Uri selectedImageUri = null;
+    private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
     private FirebaseStorage storage;
-    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
+
+    private Uri selectedImageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,24 +56,24 @@ public class SignupActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btn_signup);
         btnSelectImage = findViewById(R.id.btn_select_image);
         ivProfile = findViewById(R.id.iv_profile);
+        progressBar = findViewById(R.id.progressBar);
 
         mAuth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
-        database = FirebaseDatabase.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         btnSelectImage.setOnClickListener(v -> openImagePicker());
         btnSignup.setOnClickListener(v -> signupUser());
     }
 
     private void openImagePicker() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "프로필 사진 선택"), PICK_IMAGE_REQUEST);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             selectedImageUri = data.getData();
@@ -79,7 +82,7 @@ public class SignupActivity extends AppCompatActivity {
                 ivProfile.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "이미지 로드 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "이미지를 불러오는 데 실패했습니다.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -89,74 +92,80 @@ public class SignupActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        if (nickname.isEmpty()) {
-            etNickname.setError("닉네임을 입력하세요.");
-            return;
-        }
-        if (email.isEmpty()) {
-            etEmail.setError("이메일을 입력하세요.");
-            return;
-        }
-        if (password.isEmpty()) {
-            etPassword.setError("비밀번호를 입력하세요.");
-            return;
-        }
-        if (password.length() < 6) {
-            etPassword.setError("비밀번호는 6자 이상이어야 합니다.");
+        if (nickname.isEmpty() || email.isEmpty() || password.isEmpty() || password.length() < 6) {
+            Toast.makeText(this, "입력 정보를 확인해주세요. 비밀번호는 6자 이상입니다.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 1. Firebase Auth로 회원가입
+        setLoading(true);
+
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        if (selectedImageUri != null) {
-                            uploadProfileImageAndSaveUser(user, nickname, selectedImageUri);
-                        } else {
-                            saveUserToDatabase(user, nickname, null);
+                        if (user != null) {
+                            if (selectedImageUri != null) {
+                                uploadProfileImage(user, nickname);
+                            } else {
+                                updateUserProfileAndDatabase(user, nickname, null);
+                            }
                         }
                     } else {
-                        Toast.makeText(this, "회원가입 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignupActivity.this, "회원가입 실패: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        setLoading(false);
                     }
                 });
     }
 
-    private void uploadProfileImageAndSaveUser(FirebaseUser user, String nickname, Uri imageUri) {
-        // 고유 파일명 생성
-        String fileName = "profile_images/" + user.getUid() + "_" + UUID.randomUUID().toString();
+    private void uploadProfileImage(FirebaseUser user, String nickname) {
+        StorageReference profileImageRef = storage.getReference().child("profile_images/" + user.getUid());
 
-        StorageReference ref = storage.getReference().child(fileName);
-        ref.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl().addOnSuccessListener(uri -> {
+        profileImageRef.putFile(selectedImageUri)
+                .addOnSuccessListener(taskSnapshot -> profileImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String imageUrl = uri.toString();
-                    saveUserToDatabase(user, nickname, imageUrl);
+                    updateUserProfileAndDatabase(user, nickname, imageUrl);
                 }))
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "프로필 사진 업로드 실패", Toast.LENGTH_SHORT).show();
-                    saveUserToDatabase(user, nickname, null); // 사진 없이 저장
+                    Toast.makeText(this, "사진 업로드 실패. 정보만 저장됩니다.", Toast.LENGTH_SHORT).show();
+                    updateUserProfileAndDatabase(user, nickname, null);
                 });
     }
 
-    private void saveUserToDatabase(FirebaseUser user, String nickname, String imageUrl) {
-        // 사용자 정보 저장
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("nickname", nickname);
-        userData.put("email", user.getEmail());
-        if (imageUrl != null) userData.put("profileImageUrl", imageUrl);
+    private void updateUserProfileAndDatabase(FirebaseUser user, String nickname, @Nullable String imageUrl) {
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(nickname)
+                .setPhotoUri(imageUrl != null ? Uri.parse(imageUrl) : null)
+                .build();
 
-        database.getReference("users").child(user.getUid())
-                .setValue(userData)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "회원가입 완료!", Toast.LENGTH_SHORT).show();
-                        // 메인화면 등으로 이동
-                        Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(this, "DB 저장 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
+            // Realtime Database에도 정보 저장
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("uid", user.getUid());
+            userData.put("email", user.getEmail());
+            userData.put("nickname", nickname);
+            if (imageUrl != null) {
+                userData.put("profileImageUrl", imageUrl);
+            }
+
+            databaseReference.child(user.getUid()).setValue(userData)
+                    .addOnCompleteListener(dbTask -> {
+                        setLoading(false);
+                        if (dbTask.isSuccessful()) {
+                            Toast.makeText(this, "회원가입이 완료되었습니다!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(this, "데이터베이스 저장 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+    }
+
+    private void setLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnSignup.setEnabled(!isLoading);
+        btnSelectImage.setEnabled(!isLoading);
     }
 }
