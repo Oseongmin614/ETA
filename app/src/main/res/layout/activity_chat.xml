@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color">
 
-    <!-- 채팅 메시지 목록 -->
+    <!-- 툴바 -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/chat_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/black"
+        app:titleTextColor="@android:color/white"
+        app:subtitleTextColor="@android:color/white"
+        app:navigationIconTint="@android:color/white"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_alignParentTop="true" />
+
+    <!-- 리사이클러뷰 (툴바 아래로 내림) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/chat_toolbar"
         android:layout_above="@+id/layoutMessageInput"
-        android:layout_alignParentTop="true"
         android:background="@color/background_color"
         android:transcriptMode="alwaysScroll" />
 
@@ -165,6 +179,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
 
     <!-- 메시지 입력 영역 -->
     <RelativeLayout
