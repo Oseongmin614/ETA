@@ -20,6 +20,10 @@
         <item name="android:textColorSecondary">#CCCCCC</item>
     </style>
 
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- 필요하면 색상 커스터마이징 가능 -->
+    </style>
+
     <!-- 다크 테마 Button 스타일 -->
     <style name="DarkButton" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@color/text_primary</item>
