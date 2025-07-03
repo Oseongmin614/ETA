@@ -108,7 +108,7 @@
         android:id="@+id/button_start_route"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=" 길찾기 시작"
+        android:text="경로 탐색"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -117,6 +117,31 @@
         android:enabled="false" />
 
     <!-- 하단 여백 -->
+    <Button
+        android:id="@+id/button_friends"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/button_secondary"
+        android:enabled="false"
+        android:padding="20dp"
+        android:text="경로 지도 보기"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/button_endown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/button_secondary"
+        android:enabled="false"
+        android:padding="20dp"
+        android:text="빠른 경로 설정"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"

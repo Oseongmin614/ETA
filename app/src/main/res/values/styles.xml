@@ -35,6 +35,11 @@
         <item name="android:padding">12dp</item>
     </style>
 
+    <style name="TimePickerTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#CCCCCC</item>
+    </style>
+
     <!-- 다크 테마 Button 스타일 -->
     <style name="DarkButton" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@color/text_primary</item>

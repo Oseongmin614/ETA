@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/itemParticipantLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical"
+    android:background="#222222">
+
+    <TextView
+        android:id="@+id/participantNameTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="참여자 이름"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp" />
+
+    <ImageButton
+        android:id="@+id/alarmIconButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="알람 보내기"
+        android:src="@android:drawable/ic_lock_idle_alarm"
+        android:tint="#FFFFFF" />
+</LinearLayout>

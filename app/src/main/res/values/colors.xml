@@ -11,6 +11,8 @@
     <color name="gray4">#CED4DA</color>
     <color name="gray2">#E9ECEF</color>
 
+    <color name="text_on_primary">#FFFFFF</color>  <!-- 버튼 위의 텍스트는 흰색 -->
+
     <!-- 앱 테마 색상 -->
     <color name="primary_color">@color/gray9</color>
     <color name="background_color">@color/black</color>
@@ -25,4 +27,11 @@
     <color name="colorPrimary">@color/primary_color</color>
     <color name="colorPrimaryDark">@color/gray9</color>
     <color name="colorAccent">@color/button_primary</color>
+
+    <color name="walk_line_color">#4CAF50</color>
+    <color name="bus_line_color">#2196F3</color>
+    <color name="subway_line_color">#FF5722</color>
+    <color name="selected_item_color">#9C27B0</color>
+
+
 </resources>
