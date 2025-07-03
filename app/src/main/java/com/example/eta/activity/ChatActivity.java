@@ -5,10 +5,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,7 +24,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -57,7 +62,6 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<ChatMessage> messageList;
 
-    // Firebase 관련 변수
     private DatabaseReference mDatabase;
     private String currentUserId;
     private String chatRoomId;
@@ -68,7 +72,9 @@ public class ChatActivity extends AppCompatActivity {
     private Handler timeHandler = new Handler();
     private Runnable timeRunnable;
     private static final int APP_LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
     //장소 추출 기능 관련
+
     private NerService nerService;
     private String endStr = null;
 
@@ -77,21 +83,57 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        Toolbar toolbar = findViewById(R.id.chat_toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+            // ✅ 흰색으로 tint된 아이콘 설정
+            Drawable icon = ContextCompat.getDrawable(this, R.drawable.baseline_access_alarm_24);
+            if (icon != null) {
+                icon.setTint(Color.WHITE);
+                actionBar.setHomeAsUpIndicator(icon);
+            }
+
+            // ✅ 무조건 이걸로 타이틀 설정
+            actionBar.setTitle("🧠 ETA 테스트방");
+
+            // ✅ 서브타이틀도 고정
+            actionBar.setSubtitle("서울역 · 12:30");
+        }
+
         getIntentData();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         initializeChatUI();
         loadMessages();
         sendJoinMessage();
-        registerParticipant(); // ✅ 입장 시 참여자 등록
+        registerParticipant();
         startClock();
         createNerService();
-        // 위치 공유 시작
-
     }
+
+    // 🔥 CreateRoomInfoActivity에서 돌아왔을 때도 처리
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 101 && resultCode == RESULT_OK && data != null) {
+            String location = data.getStringExtra("location");
+            String time = data.getStringExtra("time");
+
+            if (getSupportActionBar() != null && location != null && time != null) {
+                getSupportActionBar().setSubtitle(location + "  " + time);
+            }
+        }
+    }
+
 
     private void createNerService(){
         nerService = new NerService(this);
     }
+
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private void checkAndRequestBackgroundLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -110,13 +152,14 @@ public class ChatActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION, // 보통 이미 허용되어야 하지만 함께 요청 가능
+                            Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION
                     },
                     APP_LOCATION_PERMISSION_REQUEST_CODE
             );
         }
     }
+
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -220,7 +263,7 @@ public class ChatActivity extends AppCompatActivity {
             Toast.makeText(this, "공유 기능은 개발 중입니다", Toast.LENGTH_SHORT).show();
             hideQuickMenu();
         });
-        //출발
+
         LinearLayout menuDeparture = findViewById(R.id.menu_departure);
         menuDeparture.setOnClickListener(v -> {
             Toast.makeText(this, "출발합니다", Toast.LENGTH_SHORT).show();
@@ -232,8 +275,6 @@ public class ChatActivity extends AppCompatActivity {
             }
             hideQuickMenu();
         });
-
-
     }
 
     private void toggleQuickMenu() {
@@ -274,8 +315,6 @@ public class ChatActivity extends AppCompatActivity {
         timeHandler.post(timeRunnable);
     }
 
-
-    // LocationService를 시작하는 메서드
     private void startLocationService() {
         Intent serviceIntent = new Intent(this, LocationService.class);
         serviceIntent.putExtra("roomId", chatRoomId);
@@ -284,7 +323,6 @@ public class ChatActivity extends AppCompatActivity {
         Log.d("ChatActivity", "LocationService started for room: " + chatRoomId);
     }
 
-    // LocationService를 중지하는 메서드
     private void stopLocationService() {
         stopService(new Intent(this, LocationService.class));
         Log.d("ChatActivity", "LocationService stopped.");
@@ -320,7 +358,6 @@ public class ChatActivity extends AppCompatActivity {
                 System.currentTimeMillis()
         );
 
-
         String messageId = mDatabase.child("chats").child(chatRoomId).child("messages").push().getKey();
         if (messageId != null) {
             mDatabase.child("chats").child(chatRoomId).child("messages").child(messageId).setValue(chatMessage)
@@ -328,25 +365,18 @@ public class ChatActivity extends AppCompatActivity {
                             Toast.makeText(ChatActivity.this, "메시지 전송 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
 
-        // 2. NerService를 호출하여 응답을 받음
         if (nerService != null) {
             nerService.requestNer(messageText, new NerCallback() {
                 @Override
                 public void onSuccess(String response) {
-                    // 성공 응답을 시스템 메시지로 채팅방에 추가
                     Log.i("NER_SUCCESS", "NER 응답: " + response);
-
-                    // 응답 내용이 있을 경우에만 메시지 표시
                     if (response != null && !response.equals("분석된 장소 없음") && !response.isEmpty()) {
                         endStr = response;
                     }
                 }
 
-
-
                 @Override
                 public void onFailure(Throwable t) {
-                    // 실패 시 로그 출력 및 간단한 토스트 메시지 표시
                     Log.e("NER_FAILURE", "NER 요청 실패", t);
                     Toast.makeText(ChatActivity.this, "NER 분석 실패", Toast.LENGTH_SHORT).show();
                 }
@@ -400,19 +430,11 @@ public class ChatActivity extends AppCompatActivity {
         if (timeHandler != null && timeRunnable != null) {
             timeHandler.removeCallbacks(timeRunnable);
         }
-        sendLeaveMessage();      // ✅ 퇴장 메시지
-        unregisterParticipant(); // ✅ 실시간 참여자 제거
+        sendLeaveMessage();
+        unregisterParticipant();
         stopLocationService();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onBackPressed() {
