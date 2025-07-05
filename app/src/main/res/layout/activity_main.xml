@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -17,34 +17,54 @@
         android:layout_marginBottom="32dp"
         android:textAlignment="center" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="사용할 닉네임을 입력해주세요"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginBottom="16dp" />
-
     <EditText
-        android:id="@+id/et_nickname"
+        android:id="@+id/et_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="닉네임을 입력하세요"
+        android:hint="이메일"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_secondary"
+        android:background="@color/surface_color"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:inputType="textEmailAddress"
+        android:maxLines="1"
+        android:imeOptions="actionNext" />
+
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="비밀번호"
         android:textSize="16sp"
         android:textColor="@color/text_primary"
         android:textColorHint="@color/text_secondary"
         android:background="@color/surface_color"
         android:padding="16dp"
         android:layout_marginBottom="24dp"
-        android:inputType="text"
+        android:inputType="textPassword"
         android:maxLines="1"
         android:imeOptions="actionDone" />
 
+    <!-- 로그인 버튼이 위로 이동 -->
     <Button
-        android:id="@+id/btn_start"
+        android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="채팅 시작하기"
+        android:text="로그인"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:background="@color/button_primary"
+        android:padding="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- 회원가입 버튼이 아래로 이동 -->
+    <Button
+        android:id="@+id/btn_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="회원가입"
         android:textSize="16sp"
         android:textColor="@color/text_primary"
         android:background="@color/button_primary"

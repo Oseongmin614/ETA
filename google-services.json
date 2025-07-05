@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "811837220183",
-    "firebase_url": "https://chat-35bd8-default-rtdb.firebaseio.com",
-    "project_id": "chat-35bd8",
-    "storage_bucket": "chat-35bd8.firebasestorage.app"
+    "project_number": "308202958297",
+    "firebase_url": "https://maafirebaseproject-8e97f.firebaseio.com",
+    "project_id": "maafirebaseproject-8e97f",
+    "storage_bucket": "maafirebaseproject-8e97f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:811837220183:android:2594bbda4ed1c852c74a12",
+        "mobilesdk_app_id": "1:308202958297:android:5053f929756054d6a1fdc8",
         "android_client_info": {
           "package_name": "com.example.eta"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDU0kyLXIQCySsI71_pQZt6F5-84fnyFeI"
+          "current_key": "AIzaSyCZ2_MCOU0GXz6jMiynOhaMp0FohH6vOQc"
         }
       ],
       "services": {
@@ -27,15 +27,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:811837220183:android:9338834c38bfed5bc74a12",
+        "mobilesdk_app_id": "1:308202958297:android:2335d00caf79e957",
         "android_client_info": {
-          "package_name": "com.example.myapplication"
+          "package_name": "com.example.ohsongmin.maa"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDU0kyLXIQCySsI71_pQZt6F5-84fnyFeI"
+          "current_key": "AIzaSyCZ2_MCOU0GXz6jMiynOhaMp0FohH6vOQc"
         }
       ],
       "services": {

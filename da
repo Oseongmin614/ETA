@@ -1,0 +1,77 @@
+[33mcommit e7d965a7361e08df4ab5594730785e4d2df2fee7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/feature/realarm[m[33m, [m[1;31morigin/feature/alarm[m[33m, [m[1;32mfeature/realarm[m[33m, [m[1;32mfeature/alarm[m[33m, [m[1;32mbackup/dev-before-merge[m[33m)[m
+Merge: 4a42ebf d19268f
+Author: ksm <diclonious7@gmail.com>
+Date:   Sat Jun 7 09:12:43 2025 +0900
+
+    alarm fix
+
+[33mcommit d19268f7b65271fb92abcf5b2dc561479570915d[m
+Author: ksm <diclonious7@gmail.com>
+Date:   Thu Jun 5 08:33:55 2025 +0900
+
+    alarm
+
+[33mcommit 4a42ebf5a7c2f76ffe1843c6f1e8a292e0665d6f[m
+Merge: 3d2d9ce 90fd26f
+Author: NoHyeokPark <park92y@naver.com>
+Date:   Wed Jun 4 21:45:13 2025 +0900
+
+    Merge remote-tracking branch 'origin/dev' into dev
+
+[33mcommit 3d2d9ce22c1ab9dae897044f8ecba6fde41e82de[m
+Merge: 992ad6e 33b0c51
+Author: NoHyeokPark <park92y@naver.com>
+Date:   Wed Jun 4 21:44:04 2025 +0900
+
+    Merge branch 'feature/map' into dev
+
+[33mcommit 33b0c515ebad5f4fbc64eb3442c46eef84cdd215[m
+Author: NoHyeokPark <park92y@naver.com>
+Date:   Wed Jun 4 21:37:15 2025 +0900
+
+    dboption
+
+[33mcommit 90fd26fcb38f52b05ba631d4bc8fad5c4df52fe0[m
+Merge: 992ad6e e8116f1
+Author: NoHyeokPark <park92y@naver.com>
+Date:   Mon Jun 2 08:38:35 2025 +0900
+
+    Merge pull request #2 from Oseongmin614/feature/map
+    
+    Feature/map 머지
+
+[33mcommit e8116f1932d06af6163bdb5235ed2ba7228ceeef[m
+Author: NoHyeokPark <park92y@naver.com>
+Date:   Mon Jun 2 01:21:25 2025 +0900
+
+    friends&gps update
+
+[33mcommit 01dba8db0c23dd41ec6de455a17fcb8a303ebc20[m
+Author: NoHyeokPark <park92y@naver.com>
+Date:   Sun Jun 1 23:55:52 2025 +0900
+
+    "commit test"
+
+[33mcommit 992ad6e724c3efe100ff1193b19a66d930282d11[m
+Author: ohseongmin <ohseongmin0614@gmail.com>
+Date:   Sun Jun 1 02:18:34 2025 +0900
+
+    Create dev branch for integration
+
+[33mcommit 1423023e20c17a3505252f9059d819e577267d90[m
+Author: ohseongmin <snders@naver.com>
+Date:   Sat May 31 18:07:48 2025 +0900
+
+    Delete app/src/main/java/com/example/eta/util/Keyholder.java
+
+[33mcommit 120242bc9d2102030fcfca69bac1a8ade94d8035[m
+Author: ohseongmin <snders@naver.com>
+Date:   Sat May 31 18:03:53 2025 +0900
+
+    Initial commit
+
+[33mcommit 9e747b14314c0b93a83b711cc98090eb5eda1b05[m
+Author: ohseongmin <snders@naver.com>
+Date:   Thu May 29 17:17:50 2025 +0900
+
+    Initial commit
