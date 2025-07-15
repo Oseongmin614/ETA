@@ -1,10 +1,10 @@
-# [약속 도우미 앱  - ETA]
+# [약속 도우미 앱 - ETA]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Figma](https://img.shields.io/badge/Figma-약속도우미앱-FF7262?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/00yGg5GKB3haVEu9ZZZyWh/%EC%95%BD%EC%86%8D%EB%8F%84%EC%9A%B0%EB%AF%B8%EC%95%B1?node-id=149-2&p=f&t=3bpw0sHgSvLQc0S7-0)[![Notion](https://img.shields.io/badge/Notion-약속도우미앱-000000?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/1d501448704d8000bb1dd712c8a95f23)
+
 > ETA - 'Estimated Time of Arrival', 도착 예정 시간을 공유하고 약속에 스트레스를 덜어내세요!
-[![ETA 약속 도우미 앱 시연 영상](https://raw.githubusercontent.com/Oseongmin614/ETA/main/thumbnail.png)](https://o365kopo-my.sharepoint.com/personal/2503340032_office_kopo_ac_kr/_layouts/15/stream.aspx?id=%2Fpersonal%2F2503340032_office_kopo_ac_kr%2FDocuments%2F%EC%95%BD%EC%86%8D%EB%8F%84%EC%9A%B0%EB%AF%B8%20%EC%8B%9C%EC%97%B0%EC%98%81%EC%83%81%20%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85.mp4)
+
+[![ETA 약속 도우미 앱 시연 영상](https://raw.githubusercontent.com/Oseongmin614/ETA/main/thumbnail.png)](https://www.youtube.com/watch?v=Xjpf-naRuzE)
 <br>
 
-[![Figma](https://img.shields.io/badge/Figma-BookTheather-FF7262?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/00yGg5GKB3haVEu9ZZZyWh/BookTheather?node-id=149-2&p=f)
-[![Notion](https://img.shields.io/badge/Notion-Project%20Docs-000000?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/1d501448704d8000bb1dd712c8a95f23)
 
 <br>
 
