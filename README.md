@@ -1,4 +1,4 @@
-# [약속 도우미 앱 - ETA]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Figma](https://img.shields.io/badge/Figma-약속도우미앱-FF7262?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/00yGg5GKB3haVEu9ZZZyWh/%EC%95%BD%EC%86%8D%EB%8F%84%EC%9A%B0%EB%AF%B8%EC%95%B1?node-id=149-2&p=f&t=3bpw0sHgSvLQc0S7-0)[![Notion](https://img.shields.io/badge/Notion-약속도우미앱-000000?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/1d501448704d8000bb1dd712c8a95f23)
+# [약속 도우미 앱 - ETA]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Figma](https://img.shields.io/badge/Figma-약속도우미앱-FF7262?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/00yGg5GKB3haVEu9ZZZyWh/%EC%95%BD%EC%86%8D%EB%8F%84%EC%9A%B0%EB%AF%B8%EC%95%B1?node-id=149-2&p=f&t=3bpw0sHgSvLQc0S7-0)[![Notion](https://img.shields.io/badge/Notion-약속도우미앱-000000?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/1d501448704d8000bb1dd712c8a95f23)
 
 > ETA - 'Estimated Time of Arrival', 도착 예정 시간을 공유하고 약속에 스트레스를 덜어내세요!
 
@@ -140,27 +140,28 @@ ETA/
 ├── app/
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/com/example/eta/
-│   │   │   │   ├── activity/      # 액티비티(화면) 클래스
-│   │   │   │   ├── adapter/       # RecyclerView 등 어댑터
-│   │   │   │   ├── model/         # 데이터 모델 클래스
-│   │   │   │   ├── receiver/      # 브로드캐스트 리시버
-│   │   │   │   ├── service/       # 서비스(백그라운드 작업)
-│   │   │   │   └── util/          # 유틸리티/헬퍼 함수
-│   │   │   ├── assets/            # 정적 파일(폰트, 데이터 등)
-│   │   │   ├── res/
-│   │   │   │   ├── drawable/      # 이미지, 벡터, 셰이프 등
-│   │   │   │   ├── layout/        # 레이아웃 XML
-│   │   │   │   ├── menu/          # 메뉴 리소스
-│   │   │   │   ├── mipmap/        # 앱 아이콘 등
-│   │   │   │   ├── navigation/    # 네비게이션 그래프
-│   │   │   │   ├── raw/           # 원본 리소스(음악, 효과음 등)
-│   │   │   │   ├── values/        # colors, styles, strings 등 공통 리소스
-│   │   │   │   └── xml/           # 기타 XML(네트워크, 퍼미션 등)
-│   │   │   └── AndroidManifest.xml # 앱 전체 설정 및 액티비티/퍼미션 등록
-│   └── build.gradle                # 모듈별 빌드 설정
-├── build.gradle                    # 프로젝트 전체 빌드 설정
-├── google-services.json            # Firebase 연동 설정
-└── ..                              # 기타 파일
+│   │   │   ├── java/com/example/eta/    # Java 파일
+│   │   │   │   ├── activity/            # 액티비티(화면) 클래스
+│   │   │   │   ├── adapter/             # RecyclerView 등 어댑터
+│   │   │   │   ├── model/               # 데이터 모델 클래스
+│   │   │   │   ├── receiver/            # 브로드캐스트 리시버
+│   │   │   │   ├── service/             # 서비스(백그라운드 작업)
+│   │   │   │   └── util/                # 유틸리티/헬퍼 함수
+│   │   │   ├── assets/                  # 정적 파일(폰트, 데이터 등)
+│   │   │   |
+│   │   │   ├── res/                     # xml 파일
+│   │   │   │   ├── drawable/            # 이미지, 벡터, 셰이프 등
+│   │   │   │   ├── layout/              # 레이아웃 XML
+│   │   │   │   ├── menu/                # 메뉴 리소스
+│   │   │   │   ├── mipmap/              # 앱 아이콘 등
+│   │   │   │   ├── navigation/          # 네비게이션 그래프
+│   │   │   │   ├── raw/                 # 원본 리소스(음악, 효과음 등)
+│   │   │   │   ├── values/              # colors, styles, strings 등 공통 리소스
+│   │   │   │   └── xml/                 # 기타 XML(네트워크, 퍼미션 등)
+│   │   │   └── AndroidManifest.xml      # 앱 전체 설정 및 액티비티/퍼미션 등록
+│   └── build.gradle                     # 모듈별 빌드 설정
+├── build.gradle                         # 프로젝트 전체 빌드 설정
+├── google-services.json                 # Firebase 연동 설정
+└── ..                                   # 기타 파일
 
 ```
