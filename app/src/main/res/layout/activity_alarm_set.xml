@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_color"
+    android:padding="16dp">
+
+    <!-- 다이얼 타임피커 -->
+    <TimePicker
+        android:id="@+id/time_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/TimePickerTheme"
+        android:timePickerMode="spinner"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 알람 추가 버튼 -->
+    <Button
+        android:id="@+id/btn_save_alarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="알람 추가"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:background="@color/button_primary"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 알람 리스트 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_alarm_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="@color/surface_color" />
+</LinearLayout>

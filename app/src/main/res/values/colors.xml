@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 기본 색상 -->
+
     <color name="white">#FFFFFF</color>
     <color name="black">#101010</color>
 
     <!-- Gray 팔레트 -->
     <color name="gray9">#212529</color>
+    <color name="gray8">#2C2C2E</color>
+    <color name="gray7">#3A3A3C</color>
     <color name="gray6">#868E96</color>
     <color name="gray5">#ADB5BD</color>
     <color name="gray4">#CED4DA</color>
+
     <color name="gray2">#E9ECEF</color>
+
+    <color name="blue">#E9ECEF</color>
+    <color name="text_on_primary">#FFFFFF</color>  <!-- 버튼 위의 텍스트는 흰색 -->
 
     <!-- 앱 테마 색상 -->
     <color name="primary_color">@color/gray9</color>
@@ -20,4 +27,20 @@
     <color name="button_primary">@color/gray6</color>
     <color name="button_secondary">@color/gray4</color>
     <color name="divider_color">@color/gray6</color>
+
+    <!-- Firebase 호환성을 위한 기본 색상 추가 -->
+    <color name="colorPrimary">@color/primary_color</color>
+    <color name="colorPrimaryDark">@color/gray9</color>
+    <color name="colorAccent">@color/button_primary</color>
+
+    <color name="walk_line_color">#4CAF50</color>
+    <color name="bus_line_color">#2196F3</color>
+    <color name="subway_line_color">#FF5722</color>
+    <color name="selected_item_color">#9C27B0</color>
+    <!-- 프로필 색상 -->
+    <color name="profile_background">@color/gray7</color>
+    <color name="profile_border">#48484A</color>
+    <color name="my_message_background">#0084FF</color>
+    <color name="other_message_background">#2C2C2E</color>
+    <color name="message_border">#3A3A3C</color>
 </resources>

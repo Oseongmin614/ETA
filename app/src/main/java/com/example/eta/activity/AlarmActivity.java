@@ -1,20 +1,20 @@
 package com.example.eta.activity;
 
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-
 import com.example.eta.R;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,135 +22,85 @@ import java.util.Locale;
 
 public class AlarmActivity extends AppCompatActivity {
 
-    private Ringtone ringtone;
-    private TextView textAlarmTime;
-    private TextView textUserInfo;
-    private Button buttonDismiss;
-    private Button buttonSnooze;
+    private TextView textAlarmTime, textAlarmUser;
+    private Button btnEndAlarm, btnSnoozeAlarm, btnMoveToManage, btnShowParticipants;
 
-    // ChatActivity에서 전달받을 데이터
     private String nickname;
-    private String userId;
+    private String currentUserId;
     private String chatRoomId;
     private String roomName;
+
+    private DatabaseReference alarmRequestRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
 
-        // ChatActivity에서 전달받은 데이터 처리
-        getIntentData();
-
-        // 잠금화면 위로 알람 띄우기
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true);
-            setTurnScreenOn(true);
-        } else {
-            getWindow().addFlags(
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-            );
-        }
-
-        // 액션바 설정
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("알람 - " + (roomName != null ? roomName : "ETA"));
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
-        initViews();
-        startAlarmSound();
-        setupClickListeners();
-    }
-
-    private void getIntentData() {
-        // ChatActivity에서 전달받은 데이터
+        // 🔹 인텐트에서 값 받기
         nickname = getIntent().getStringExtra("nickname");
-        userId = getIntent().getStringExtra("userId");
+        currentUserId = getIntent().getStringExtra("userId");
         chatRoomId = getIntent().getStringExtra("chatRoomId");
         roomName = getIntent().getStringExtra("roomName");
 
-        // 로그로 확인
-        android.util.Log.d("AlarmActivity", "받은 데이터 - 닉네임: " + nickname + ", 방: " + roomName);
-    }
-
-    private void initViews() {
+        // 🔹 뷰 초기화
         textAlarmTime = findViewById(R.id.text_alarm_time);
-        textUserInfo = findViewById(R.id.text_user_info);
-        buttonDismiss = findViewById(R.id.button_dismiss);
-        buttonSnooze = findViewById(R.id.button_snooze);
+        textAlarmUser = findViewById(R.id.text_alarm_user);
+        btnEndAlarm = findViewById(R.id.btn_end_alarm);
+        btnSnoozeAlarm = findViewById(R.id.btn_snooze_alarm);
+        btnMoveToManage = findViewById(R.id.btn_move_to_manage);
+        btnShowParticipants = findViewById(R.id.btn_show_participants);
 
-        // 다크 테마 적용
-        textAlarmTime.setTextColor(getResources().getColor(R.color.text_primary));
-        buttonDismiss.setBackgroundColor(getResources().getColor(R.color.button_primary));
-        buttonDismiss.setTextColor(getResources().getColor(R.color.text_primary));
-        buttonSnooze.setBackgroundColor(getResources().getColor(R.color.button_secondary));
-        buttonSnooze.setTextColor(getResources().getColor(R.color.text_primary));
+        // 🔹 현재 시간 표시 (24시간 형식)
+        String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+        textAlarmTime.setText(currentTime);
 
-        // 현재 시간 표시
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        textAlarmTime.setText(sdf.format(new Date()));
-
-        // 사용자 정보 표시 (이모지 제거)
-        if (textUserInfo != null && nickname != null) {
-            textUserInfo.setText(nickname + "님의 알람");
-            textUserInfo.setTextColor(getResources().getColor(R.color.text_secondary));
+        // 🔹 닉네임 표시
+        if (nickname != null && !nickname.isEmpty()) {
+            textAlarmUser.setText("보낸 사람: " + nickname);
+            observeAlarmRequests(); // 닉네임 있을 때만 Firebase 감시
         }
+
+        // 🔹 버튼 클릭 이벤트 설정
+        btnEndAlarm.setOnClickListener(v -> finish());
+
+        btnSnoozeAlarm.setOnClickListener(v -> finish());
+
+        btnMoveToManage.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AlarmSetActivity.class);
+            startActivity(intent);
+        });
+
+        btnShowParticipants.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AlarmParticipantListActivity.class);
+            intent.putExtra("roomId", chatRoomId);
+            intent.putExtra("userId", currentUserId);
+            intent.putExtra("nickname", nickname);
+            startActivity(intent);
+        });
     }
 
-    private void setupClickListeners() {
-        buttonDismiss.setOnClickListener(v -> {
-            stopAlarmSound();
+    private void observeAlarmRequests() {
+        alarmRequestRef = FirebaseDatabase.getInstance()
+                .getReference("alarmRequests")
+                .child(nickname);
 
-            // 알람 종료 메시지 (이모지 제거)
-            if (nickname != null) {
-                Toast.makeText(this, nickname + "님, 알람을 종료합니다", Toast.LENGTH_SHORT).show();
+        alarmRequestRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
+                String message = snapshot.getValue(String.class);
+                if (message != null) {
+                    textAlarmUser.setText(message);
+                    Toast.makeText(AlarmActivity.this, message, Toast.LENGTH_LONG).show();
+                    snapshot.getRef().removeValue();
+                }
+
             }
 
-            finish();
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {}
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
-
-        buttonSnooze.setOnClickListener(v -> {
-            stopAlarmSound();
-            Toast.makeText(this, "5분 후 다시 알람이 울립니다", Toast.LENGTH_SHORT).show();
-            // TODO: 5분 후 스누즈 알람 설정
-            finish();
-        });
-    }
-
-    private void startAlarmSound() {
-        // 기본 알람 소리 울리기
-        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if (alarmUri == null) {
-            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        }
-
-        ringtone = RingtoneManager.getRingtone(this, alarmUri);
-        if (ringtone != null) {
-            ringtone.play();
-        }
-    }
-
-    private void stopAlarmSound() {
-        if (ringtone != null && ringtone.isPlaying()) {
-            ringtone.stop();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopAlarmSound();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            stopAlarmSound();
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

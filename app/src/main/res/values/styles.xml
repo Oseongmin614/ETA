@@ -1,4 +1,23 @@
 <resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryDark">@color/gray9</item>
+        <item name="colorAccent">@color/button_primary</item>
+
+        <!-- 다크 테마 색상 설정 -->
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+    </style>
+
+    <!-- NoActionBar 테마 (필요시) -->
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <!-- 다크 테마 AlertDialog 스타일 -->
     <style name="DarkAlertDialog" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:background">@color/surface_color</item>
@@ -13,11 +32,33 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
         <item name="android:background">@color/surface_color</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="TimePickerTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#CCCCCC</item>
+    </style>
+
+    <style name="AppThemeCustom" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- 필요하면 색상 커스터마이징 가능 -->
     </style>
 
     <!-- 다크 테마 Button 스타일 -->
     <style name="DarkButton" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:background">@color/button_primary</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="PopupMenuTextStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:popupBackground">@drawable/popup_menu_background</item>
+    </style>
+
+    <style name="PopupMenuTextStyle2" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@color/background_color</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <!-- 필요에 따라 추가 스타일 속성 지정 가능 -->
     </style>
 </resources>

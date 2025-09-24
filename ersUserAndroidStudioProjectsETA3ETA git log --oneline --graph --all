@@ -1,0 +1,39 @@
+*   [33me7d965a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/feature/alarm[m[33m, [m[1;32mfeature/alarm[m[33m, [m[1;32mbackup/dev-before-merge[m[33m)[m alarm fix
+[31m|[m[32m\[m  
+[31m|[m * [33md19268f[m alarm
+[31m|[m *   [33mdd829cd[m[33m ([m[1;31morigin/dev[m[33m)[m Merge branch 'dev' into feature/map
+[31m|[m [33m|[m[31m\[m  
+[31m|[m [33m|[m[31m/[m  
+[31m|[m[31m/[m[33m|[m   
+[31m|[m * [33m9effb38[m sinario
+[31m|[m [34m|[m *   [33mbf513b1[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Merge pull request #4 from Oseongmin614/dev
+[31m|[m [34m|[m [35m|[m[31m\[m  
+[31m|[m [34m|[m[31m_[m[35m|[m[31m/[m  
+[31m|[m[31m/[m[34m|[m [35m|[m   
+* [34m|[m [35m|[m   [33m4a42ebf[m Merge remote-tracking branch 'origin/dev' into dev
+[1;31m|[m[1;32m\[m [34m\[m [35m\[m  
+[1;31m|[m * [34m\[m [35m\[m   [33m90fd26f[m[33m ([m[1;31morigin/feature/chat[m[33m)[m Merge pull request #2 from Oseongmin614/feature/map
+[1;31m|[m [1;33m|[m[1;34m\[m [34m\[m [35m\[m  
+* [1;33m|[m [1;34m\[m [34m\[m [35m\[m   [33m3d2d9ce[m Merge branch 'feature/map' into dev
+[1;33m|[m[34m\[m [1;33m\[m [1;34m\[m [34m\[m [35m\[m  
+[1;33m|[m [34m|[m[1;33m/[m [1;34m/[m [34m/[m [35m/[m  
+[1;33m|[m[1;33m/[m[34m|[m [1;34m|[m [34m/[m [35m/[m   
+[1;33m|[m [34m|[m [1;34m|[m[34m/[m [35m/[m    
+[1;33m|[m [34m|[m[34m/[m[1;34m|[m [35m|[m     
+* [34m|[m [1;34m|[m [35m|[m [33m992ad6e[m Create dev branch for integration
+[1;36m|[m [34m|[m [1;34m|[m *   [33m1a1a445[m Merge pull request #3 from Oseongmin614/feature/map
+[1;36m|[m [34m|[m [1;34m|[m [31m|[m[34m\[m  
+[1;36m|[m [34m|[m [1;34m|[m[34m_[m[31m|[m[34m/[m  
+[1;36m|[m [34m|[m[34m/[m[1;34m|[m [31m|[m   
+[1;36m|[m * [1;34m|[m [31m|[m [33m33b0c51[m[33m ([m[1;31morigin/feature/map[m[33m)[m dboption
+[1;36m|[m [1;34m|[m[1;34m/[m [31m/[m  
+[1;36m|[m [1;34m|[m * [33ma36ae12[m Update build.gradle.kts
+[1;36m|[m [1;34m|[m * [33me3ec528[m Merge pull request #1 from Oseongmin614/feature/map
+[1;36m|[m [1;34m|[m[1;36m/[m[1;34m|[m 
+[1;36m|[m[1;36m/[m[1;34m|[m[1;34m/[m  
+[1;36m|[m * [33me8116f1[m friends&gps update
+[1;36m|[m * [33m01dba8d[m "commit test"
+[1;36m|[m[1;36m/[m  
+* [33m1423023[m Delete app/src/main/java/com/example/eta/util/Keyholder.java
+* [33m120242b[m Initial commit
+* [33m9e747b1[m Initial commit
